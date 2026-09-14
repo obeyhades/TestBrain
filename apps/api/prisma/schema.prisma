@@ -1,0 +1,49 @@
+// Database schema for TestBrain.
+//
+// Models are added phase by phase. Today this covers authentication only;
+// projects, test cases, test runs, defects and releases follow.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id    String @id @default(cuid())
+  email String @unique
+  name  String
+
+  /// Argon2id hash. The plaintext password is never stored or logged.
+  passwordHash String
+
+  /// Whoever registers first owns the instance. Instance admins manage users;
+  /// what someone may do *inside* a project is decided by their project role.
+  isInstanceAdmin Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions Session[]
+}
+
+/// A signed-in session.
+///
+/// The id is the SHA-256 hash of the token held in the user's cookie, so a leaked
+/// database dump contains no usable session tokens. Sessions live in the database
+/// rather than in a JWT so that logging out actually revokes access.
+model Session {
+  id        String   @id
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // PostgreSQL does not index foreign keys automatically, and every logout-everywhere
+  // and cascade delete looks sessions up by user.
+  @@index([userId])
+}
