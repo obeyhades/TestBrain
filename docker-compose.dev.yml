@@ -1,0 +1,22 @@
+# Development database only. The API and web app run on the host with hot reload.
+# The full three-container stack lives in docker-compose.yml (added in a later phase).
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: testbrain-postgres-dev
+    environment:
+      POSTGRES_USER: testbrain
+      POSTGRES_PASSWORD: testbrain
+      POSTGRES_DB: testbrain
+    ports:
+      - '5432:5432'
+    volumes:
+      - testbrain_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U testbrain -d testbrain']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  testbrain_dev_data:
