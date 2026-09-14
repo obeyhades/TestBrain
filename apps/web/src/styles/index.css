@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens.
+ *
+ * Deliberately small. Colours are added when a feature needs them: the status
+ * colours for passed / failed / blocked arrive with test runs, not before.
+ */
+@theme {
+  --color-canvas: oklch(99% 0 0);
+  --color-surface: oklch(100% 0 0);
+  --color-border: oklch(92% 0.004 260);
+  --color-ink: oklch(25% 0.01 260);
+  --color-ink-muted: oklch(55% 0.012 260);
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
