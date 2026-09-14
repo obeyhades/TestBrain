@@ -65,7 +65,25 @@ Pure business logic (`calculatePassRate`, `determineReleaseStatus`, ...) lives i
 
 ## Database
 
-_Schema is added in the next phase._
+PostgreSQL, accessed through Prisma with the `@prisma/adapter-pg` driver adapter.
+
+The schema grows phase by phase. Today it covers authentication:
+
+| Model     | Purpose                                                               |
+| --------- | --------------------------------------------------------------------- |
+| `User`    | Login identity, Argon2id password hash, instance-admin flag           |
+| `Session` | A signed-in session, owned by a user and deleted along with that user |
+
+Sessions live in the database rather than inside a JWT, so logging out genuinely
+revokes access. A session's primary key is the SHA-256 hash of the token held in the
+user's cookie: a leaked database dump therefore contains no usable session tokens.
+
+The generated Prisma Client is a build artefact. It is not committed; `prisma generate`
+recreates it and runs automatically after `npm install`.
+
+```bash
+npm run db:migrate -w @testbrain/api -- --name describe_your_change
+```
 
 ## Testing Strategy
 
@@ -113,6 +131,11 @@ npm run dev -w @testbrain/api    # http://localhost:4000
 ```bash
 npm run dev -w @testbrain/web    # http://localhost:3000
 ```
+
+> **Adding a dependency?** Regenerate the lockfile with a clean install:
+> `rm -rf node_modules package-lock.json && npm install`. npm can silently drop
+> platform-specific optional dependencies during an incremental install, producing a
+> lockfile that `npm ci` cannot install from.
 
 Checks, all of which also run in CI:
 
