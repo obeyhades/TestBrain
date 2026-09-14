@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+
+# Secrets — never commit. Use .env.example as the template.
+.env
+.env.*
+!.env.example
+
+# Playwright (added in a later phase)
+playwright-report/
+test-results/

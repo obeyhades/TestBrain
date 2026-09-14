@@ -1,0 +1,2 @@
+# Normalise line endings so Windows and Linux contributors produce identical diffs.
+* text=auto eol=lf
