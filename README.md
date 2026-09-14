@@ -94,6 +94,15 @@ npm run db:migrate -w @testbrain/api -- --name describe_your_change
 - **Component** (React Testing Library) — components with real interaction logic.
 - **End to end** (Playwright) — a small number of whole-product flows.
 
+Integration tests run against their own database (`testbrain_test`), created and
+migrated automatically the first time the suite runs. They never touch development
+data, and the suite refuses to start if it is pointed at the development database.
+PostgreSQL must be running:
+
+```bash
+npm run db:up
+```
+
 ```bash
 npm test
 ```
