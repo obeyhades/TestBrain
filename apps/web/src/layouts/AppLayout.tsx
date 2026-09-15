@@ -1,11 +1,25 @@
-import { Outlet } from 'react-router';
+import { Form, Outlet, useLoaderData } from 'react-router';
+import { Button } from '../components/Button';
+import type { CurrentUser } from '../features/auth/auth.api';
 
 export function AppLayout() {
+  const user = useLoaderData() as CurrentUser;
+
   return (
     <div className="min-h-screen">
       <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex h-12 max-w-5xl items-center px-4">
+        <div className="mx-auto flex h-12 max-w-5xl items-center justify-between px-4">
           <span className="text-sm font-semibold tracking-tight">TestBrain</span>
+
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-ink-muted">{user.name}</span>
+
+            <Form method="post" action="/logout">
+              <Button type="submit" variant="secondary">
+                Sign out
+              </Button>
+            </Form>
+          </div>
         </div>
       </header>
 

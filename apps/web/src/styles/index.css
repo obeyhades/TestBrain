@@ -12,6 +12,13 @@
   --color-border: oklch(92% 0.004 260);
   --color-ink: oklch(25% 0.01 260);
   --color-ink-muted: oklch(55% 0.012 260);
+
+  --color-accent: oklch(52% 0.17 262);
+  --color-accent-hover: oklch(46% 0.17 262);
+
+  --color-danger: oklch(48% 0.18 27);
+  --color-danger-surface: oklch(97% 0.02 27);
+  --color-danger-border: oklch(88% 0.06 27);
 }
 
 body {
