@@ -9,6 +9,16 @@ import { MembersPage, membersAction, membersLoader } from './features/projects/M
 import { ProjectOverviewPage } from './features/projects/ProjectOverviewPage';
 import { ProjectsPage, projectsAction, projectsLoader } from './features/projects/ProjectsPage';
 import {
+  RequirementDetailPage,
+  requirementAction,
+  requirementLoader,
+} from './features/requirements/RequirementDetailPage';
+import {
+  RequirementsPage,
+  requirementsAction,
+  requirementsLoader,
+} from './features/requirements/RequirementsPage';
+import {
   CreateUserPage,
   createUserAction,
   createUserLoader,
@@ -62,6 +72,18 @@ export const router = createBrowserRouter([
           {
             index: true,
             element: <ProjectOverviewPage />,
+          },
+          {
+            path: 'requirements',
+            element: <RequirementsPage />,
+            loader: requirementsLoader,
+            action: requirementsAction,
+          },
+          {
+            path: 'requirements/:requirementId',
+            element: <RequirementDetailPage />,
+            loader: requirementLoader,
+            action: requirementAction,
           },
           {
             path: 'members',

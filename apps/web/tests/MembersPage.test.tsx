@@ -10,6 +10,19 @@ const MEMBERS: ProjectMember[] = [
   { userId: 'user-2', email: 'tester@example.com', name: 'Tess', role: 'QA' },
 ];
 
+/** Reads what the action received, failing clearly if it was never called. */
+async function firstSubmission(action: {
+  mock: { results: { value: unknown }[] };
+}): Promise<{ submitted: Record<string, string> }> {
+  const firstCall = action.mock.results[0];
+
+  if (firstCall === undefined) {
+    throw new Error('The action was never called');
+  }
+
+  return (await firstCall.value) as { submitted: Record<string, string> };
+}
+
 function renderMembersPage(action?: (args: { request: Request }) => unknown) {
   const router = createMemoryRouter(
     [{ path: '/members', element: <MembersPage />, loader: () => MEMBERS, action }],
@@ -46,7 +59,7 @@ describe('MembersPage', () => {
     await userEvent.selectOptions(await screen.findByLabelText('Role for Tess'), 'DEVELOPER');
 
     expect(action).toHaveBeenCalled();
-    expect((await action.mock.results[0]?.value).submitted).toEqual({
+    expect((await firstSubmission(action)).submitted).toEqual({
       intent: 'changeRole',
       userId: 'user-2',
       role: 'DEVELOPER',
@@ -63,7 +76,7 @@ describe('MembersPage', () => {
     await userEvent.type(await screen.findByLabelText('Email'), 'newcomer@example.com');
     await userEvent.click(screen.getByRole('button', { name: 'Add member' }));
 
-    expect((await action.mock.results[0]?.value).submitted).toMatchObject({
+    expect((await firstSubmission(action)).submitted).toMatchObject({
       intent: 'add',
       email: 'newcomer@example.com',
       role: 'QA',

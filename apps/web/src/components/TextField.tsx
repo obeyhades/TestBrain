@@ -7,6 +7,7 @@ type TextFieldProps = {
   required?: boolean;
   autoComplete?: string;
   hint?: string;
+  defaultValue?: string;
 };
 
 /**
@@ -22,6 +23,7 @@ export function TextField({
   required = false,
   autoComplete,
   hint,
+  defaultValue,
 }: TextFieldProps) {
   const inputId = useId();
   const hintId = useId();
@@ -38,6 +40,7 @@ export function TextField({
         type={type}
         required={required}
         autoComplete={autoComplete}
+        defaultValue={defaultValue}
         aria-describedby={hint === undefined ? undefined : hintId}
         className="mt-1 h-9 w-full rounded-md border border-border bg-surface px-2.5 text-sm focus-visible:outline-2 focus-visible:outline-offset-[-1px] focus-visible:outline-accent"
       />

@@ -12,6 +12,7 @@ export async function projectLayoutLoader({ params }: LoaderFunctionArgs): Promi
  */
 const SECTIONS = [
   { to: '.', label: 'Overview', end: true },
+  { to: 'requirements', label: 'Requirements', end: false },
   { to: 'members', label: 'Members', end: false },
 ];
 
