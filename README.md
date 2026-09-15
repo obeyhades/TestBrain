@@ -128,18 +128,16 @@ Requires Node.js 20 or newer and Docker.
 ```bash
 npm install
 cp .env.example .env
-npm run db:up
 ```
 
-Then run each app in its own terminal:
-
-```bash
-npm run dev -w @testbrain/api    # http://localhost:4000
-```
+Then start everything -- database, API and web app -- with one command:
 
 ```bash
-npm run dev -w @testbrain/web    # http://localhost:3000
+npm run dev
 ```
+
+The app is then at **http://localhost:3000**. The first visitor is asked to create
+the account that owns the instance.
 
 > **Adding a dependency?** Regenerate the lockfile with a clean install:
 > `rm -rf node_modules package-lock.json && npm install`. npm can silently drop
