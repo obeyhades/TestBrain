@@ -197,7 +197,7 @@ describe('choosing which runs validate a release', () => {
   });
 
   it('leaves the run itself alone when the release is deleted', async () => {
-    const { owner, project, run, release } = await setUpRelease();
+    const { run, release } = await setUpRelease();
 
     await prisma.release.delete({ where: { id: release.id } });
 
