@@ -1,12 +1,13 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
-import { buildServer } from '../../src/server.js';
+import { createTestPrismaClient } from '../helpers/testDatabase.js';
+import { buildTestServer } from '../helpers/testServer.js';
 
 describe('GET /api/health', () => {
   let app: FastifyInstance;
 
   beforeAll(() => {
-    app = buildServer({ logger: false });
+    app = buildTestServer(createTestPrismaClient());
   });
 
   afterAll(async () => {
