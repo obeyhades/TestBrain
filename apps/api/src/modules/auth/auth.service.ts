@@ -39,6 +39,28 @@ export function normalizeEmail(email: string): string {
 }
 
 /**
+ * Starts a session and returns the token that belongs in the user's cookie.
+ *
+ * Signing in and registering both need this, and registering must not have to
+ * re-verify a password it just hashed.
+ */
+export async function createSessionForUser(
+  prisma: PrismaClient,
+  user: AuthenticatedUser,
+  now: Date,
+): Promise<string> {
+  const token = generateSessionToken();
+
+  await authRepository.createSession(prisma, {
+    id: hashSessionToken(token),
+    userId: user.id,
+    expiresAt: calculateSessionExpiry(now),
+  });
+
+  return token;
+}
+
+/**
  * Creates the account that owns this instance.
  *
  * Registration is open only until somebody takes it. After that an administrator
@@ -77,15 +99,12 @@ export async function loginUser(
     throw new UnauthorizedError('Invalid email or password');
   }
 
-  const token = generateSessionToken();
+  const authenticatedUser = toAuthenticatedUser(user);
 
-  await authRepository.createSession(prisma, {
-    id: hashSessionToken(token),
-    userId: user.id,
-    expiresAt: calculateSessionExpiry(now),
-  });
-
-  return { user: toAuthenticatedUser(user), token };
+  return {
+    user: authenticatedUser,
+    token: await createSessionForUser(prisma, authenticatedUser, now),
+  };
 }
 
 export async function logoutUser(prisma: PrismaClient, token: string): Promise<void> {
