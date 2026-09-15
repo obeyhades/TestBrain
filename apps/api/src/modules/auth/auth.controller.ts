@@ -5,6 +5,7 @@ import { getAuthenticatedUser } from '../../middleware/requireAuth.js';
 import { loginSchema, registerSchema } from './auth.schema.js';
 import {
   createSessionForUser,
+  createUserAsInstanceAdmin,
   isAwaitingFirstUser,
   loginUser,
   logoutUser,
@@ -84,6 +85,23 @@ export async function setupStatusController(
   reply: FastifyReply,
 ) {
   return reply.status(200).send({ needsSetup: await isAwaitingFirstUser(deps.prisma) });
+}
+
+/**
+ * Creates an account for a colleague. Restricted to instance administrators by the
+ * service, which is where the rule belongs.
+ */
+export async function createUserController(
+  deps: AuthDependencies,
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const actor = getAuthenticatedUser(request);
+  const input = registerSchema.parse(request.body);
+
+  return reply
+    .status(201)
+    .send({ user: await createUserAsInstanceAdmin(deps.prisma, actor, input) });
 }
 
 export async function meController(request: FastifyRequest, reply: FastifyReply) {

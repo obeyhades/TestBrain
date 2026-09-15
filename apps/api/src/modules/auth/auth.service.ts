@@ -1,5 +1,5 @@
 import type { PrismaClient } from '../../database/prisma.js';
-import { ForbiddenError, UnauthorizedError } from '../../shared/errors.js';
+import { ConflictError, ForbiddenError, UnauthorizedError } from '../../shared/errors.js';
 import * as authRepository from './auth.repository.js';
 import { hashPassword, verifyPassword } from './password.js';
 import {
@@ -91,6 +91,38 @@ export async function registerUser(
     name: input.name,
     passwordHash: await hashPassword(input.password),
     isInstanceAdmin: true,
+  });
+
+  return toAuthenticatedUser(user);
+}
+
+/**
+ * Creates an account for somebody else.
+ *
+ * This is how a team gets onto the instance after the owner has registered, and it
+ * is why registration itself can stay closed. Accounts made this way are ordinary
+ * users: instance administration is not handed out from here.
+ */
+export async function createUserAsInstanceAdmin(
+  prisma: PrismaClient,
+  actor: AuthenticatedUser,
+  input: RegisterInput,
+): Promise<AuthenticatedUser> {
+  if (!actor.isInstanceAdmin) {
+    throw new ForbiddenError('Only an instance administrator can create accounts');
+  }
+
+  const email = normalizeEmail(input.email);
+
+  if ((await authRepository.findUserByEmail(prisma, email)) !== null) {
+    throw new ConflictError('An account with that email address already exists');
+  }
+
+  const user = await authRepository.createUser(prisma, {
+    email,
+    name: input.name,
+    passwordHash: await hashPassword(input.password),
+    isInstanceAdmin: false,
   });
 
   return toAuthenticatedUser(user);

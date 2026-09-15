@@ -4,6 +4,7 @@ import {
   loginController,
   logoutController,
   meController,
+  createUserController,
   registerController,
   setupStatusController,
   type AuthDependencies,
@@ -24,6 +25,10 @@ export function authRoutes(deps: AuthDependencies): FastifyPluginAsync {
     app.post('/auth/login', (request, reply) => loginController(deps, request, reply));
 
     app.post('/auth/logout', (request, reply) => logoutController(deps, request, reply));
+
+    app.post('/auth/users', { preHandler: requireAuth }, (request, reply) =>
+      createUserController(deps, request, reply),
+    );
 
     app.get('/auth/me', { preHandler: requireAuth }, (request, reply) =>
       meController(request, reply),
