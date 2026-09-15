@@ -19,6 +19,16 @@ import {
   requirementsLoader,
 } from './features/requirements/RequirementsPage';
 import {
+  TestCaseDetailPage,
+  testCaseAction,
+  testCaseLoader,
+} from './features/testCases/TestCaseDetailPage';
+import {
+  TestCasesPage,
+  testCasesAction,
+  testCasesLoader,
+} from './features/testCases/TestCasesPage';
+import {
   CreateUserPage,
   createUserAction,
   createUserLoader,
@@ -84,6 +94,18 @@ export const router = createBrowserRouter([
             element: <RequirementDetailPage />,
             loader: requirementLoader,
             action: requirementAction,
+          },
+          {
+            path: 'test-cases',
+            element: <TestCasesPage />,
+            loader: testCasesLoader,
+            action: testCasesAction,
+          },
+          {
+            path: 'test-cases/:testCaseId',
+            element: <TestCaseDetailPage />,
+            loader: testCaseLoader,
+            action: testCaseAction,
           },
           {
             path: 'members',

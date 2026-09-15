@@ -24,3 +24,11 @@ export function canManageProject(role: ProjectRole): boolean {
 export function canEditRequirements(role: ProjectRole): boolean {
   return role === 'ADMIN' || role === 'PROJECT_MANAGER' || role === 'QA';
 }
+
+/**
+ * Write test cases. Same people as requirements: developers read the tests that
+ * cover their work but do not author them.
+ */
+export function canEditTestCases(role: ProjectRole): boolean {
+  return role === 'ADMIN' || role === 'PROJECT_MANAGER' || role === 'QA';
+}

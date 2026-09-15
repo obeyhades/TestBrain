@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { ProjectRole } from '../../src/generated/prisma/enums.js';
-import { canEditRequirements, canManageProject } from '../../src/modules/projects/permissions.js';
+import {
+  canEditRequirements,
+  canEditTestCases,
+  canManageProject,
+} from '../../src/modules/projects/permissions.js';
 
 const EVERY_ROLE: ProjectRole[] = ['ADMIN', 'PROJECT_MANAGER', 'QA', 'DEVELOPER'];
 
@@ -35,5 +39,17 @@ describe('canEditRequirements', () => {
 
   it('leaves developers with read access only', () => {
     expect(canEditRequirements('DEVELOPER')).toBe(false);
+  });
+});
+
+describe('canEditTestCases', () => {
+  it('lets administrators, project managers and testers write test cases', () => {
+    expect(canEditTestCases('ADMIN')).toBe(true);
+    expect(canEditTestCases('PROJECT_MANAGER')).toBe(true);
+    expect(canEditTestCases('QA')).toBe(true);
+  });
+
+  it('leaves developers with read access only', () => {
+    expect(canEditTestCases('DEVELOPER')).toBe(false);
   });
 });
