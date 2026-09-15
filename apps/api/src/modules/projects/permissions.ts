@@ -16,3 +16,11 @@ import type { ProjectRole } from '../../generated/prisma/enums.js';
 export function canManageProject(role: ProjectRole): boolean {
   return role === 'ADMIN' || role === 'PROJECT_MANAGER';
 }
+
+/**
+ * Write requirements. Developers read them but do not own them: deciding what the
+ * product should do is the job of the people planning and testing it.
+ */
+export function canEditRequirements(role: ProjectRole): boolean {
+  return role === 'ADMIN' || role === 'PROJECT_MANAGER' || role === 'QA';
+}

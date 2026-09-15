@@ -6,6 +6,7 @@ import { authRoutes } from './modules/auth/auth.routes.js';
 import { buildSessionCookieOptions } from './modules/auth/sessionCookie.js';
 import { healthRoutes } from './modules/health/health.routes.js';
 import { projectRoutes } from './modules/projects/project.routes.js';
+import { requirementRoutes } from './modules/requirements/requirement.routes.js';
 
 type ServerOptions = {
   logger: boolean;
@@ -41,6 +42,7 @@ export function buildServer(options: ServerOptions): FastifyInstance {
     { prefix: '/api' },
   );
   app.register(projectRoutes({ prisma: options.prisma }), { prefix: '/api' });
+  app.register(requirementRoutes({ prisma: options.prisma }), { prefix: '/api' });
 
   // Closing the app releases the database pool, so tests and shutdowns do not
   // leave connections behind.
