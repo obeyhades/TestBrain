@@ -3,7 +3,13 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import type { PrismaClient } from '../../database/prisma.js';
 import { getAuthenticatedUser } from '../../middleware/requireAuth.js';
 import { loginSchema, registerSchema } from './auth.schema.js';
-import { createSessionForUser, loginUser, logoutUser, registerUser } from './auth.service.js';
+import {
+  createSessionForUser,
+  isAwaitingFirstUser,
+  loginUser,
+  logoutUser,
+  registerUser,
+} from './auth.service.js';
 import { SESSION_COOKIE_NAME } from './sessionCookie.js';
 
 export type AuthDependencies = {
@@ -66,6 +72,18 @@ export async function logoutController(
   reply.clearCookie(SESSION_COOKIE_NAME, { path: '/' });
 
   return reply.status(204).send();
+}
+
+/**
+ * Public on purpose. It reveals only whether anybody has signed up yet, which a
+ * brand new instance has to expose in order to be set up at all.
+ */
+export async function setupStatusController(
+  deps: AuthDependencies,
+  _request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  return reply.status(200).send({ needsSetup: await isAwaitingFirstUser(deps.prisma) });
 }
 
 export async function meController(request: FastifyRequest, reply: FastifyReply) {

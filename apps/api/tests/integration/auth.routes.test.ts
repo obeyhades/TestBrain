@@ -100,6 +100,37 @@ describe('POST /api/auth/register', () => {
   });
 });
 
+describe('GET /api/auth/setup-status', () => {
+  it('reports that a brand new instance still needs an owner', async () => {
+    const response = await app.inject({ method: 'GET', url: '/api/auth/setup-status' });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ needsSetup: true });
+  });
+
+  it('reports that setup is done once somebody has registered', async () => {
+    await register();
+
+    const response = await app.inject({ method: 'GET', url: '/api/auth/setup-status' });
+
+    expect(response.json()).toEqual({ needsSetup: false });
+  });
+
+  it('answers without a session, since nobody can sign in before setup', async () => {
+    const response = await app.inject({ method: 'GET', url: '/api/auth/setup-status' });
+
+    expect(response.statusCode).not.toBe(401);
+  });
+
+  it('reveals nothing beyond whether setup is needed', async () => {
+    await register();
+
+    const response = await app.inject({ method: 'GET', url: '/api/auth/setup-status' });
+
+    expect(Object.keys(response.json())).toEqual(['needsSetup']);
+  });
+});
+
 describe('POST /api/auth/login', () => {
   beforeEach(async () => {
     await register();

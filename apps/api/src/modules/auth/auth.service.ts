@@ -61,6 +61,16 @@ export async function createSessionForUser(
 }
 
 /**
+ * Whether this instance is still waiting for its first account.
+ *
+ * The sign-in screen asks this so a brand new instance can send the very first
+ * visitor to the registration form instead of a login form nobody can use yet.
+ */
+export async function isAwaitingFirstUser(prisma: PrismaClient): Promise<boolean> {
+  return (await authRepository.countUsers(prisma)) === 0;
+}
+
+/**
  * Creates the account that owns this instance.
  *
  * Registration is open only until somebody takes it. After that an administrator

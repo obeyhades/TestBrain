@@ -1,4 +1,4 @@
-import type { FastifyReply, FastifyRequest, preHandlerAsyncHookHandler } from 'fastify';
+import type { FastifyRequest, preHandlerAsyncHookHandler } from 'fastify';
 import type { PrismaClient } from '../database/prisma.js';
 import { UnauthorizedError } from '../shared/errors.js';
 import { getUserForSessionToken, type AuthenticatedUser } from '../modules/auth/auth.service.js';
@@ -15,7 +15,9 @@ declare module 'fastify' {
  * user it belongs to.
  */
 export function createRequireAuth(prisma: PrismaClient): preHandlerAsyncHookHandler {
-  return async function requireAuth(request: FastifyRequest, _reply: FastifyReply) {
+  // The reply is not declared because it is not used: Fastify is happy with a
+  // handler that takes fewer arguments than it offers.
+  return async function requireAuth(request: FastifyRequest) {
     const cookie = request.cookies[SESSION_COOKIE_NAME];
 
     if (cookie === undefined) {

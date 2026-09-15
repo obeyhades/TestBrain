@@ -5,6 +5,7 @@ import {
   logoutController,
   meController,
   registerController,
+  setupStatusController,
   type AuthDependencies,
 } from './auth.controller.js';
 
@@ -16,6 +17,8 @@ export function authRoutes(deps: AuthDependencies): FastifyPluginAsync {
   const requireAuth = createRequireAuth(deps.prisma);
 
   return async function registerAuthRoutes(app: FastifyInstance): Promise<void> {
+    app.get('/auth/setup-status', (request, reply) => setupStatusController(deps, request, reply));
+
     app.post('/auth/register', (request, reply) => registerController(deps, request, reply));
 
     app.post('/auth/login', (request, reply) => loginController(deps, request, reply));
