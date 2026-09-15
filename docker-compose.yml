@@ -1,0 +1,54 @@
+# The whole product: a database, an API and a web server.
+#
+#   cp .env.example .env    (then fill in POSTGRES_PASSWORD and SESSION_SECRET)
+#   docker compose up -d
+#
+# Then open http://localhost:3000
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: testbrain-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: testbrain
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: testbrain
+    volumes:
+      - testbrain_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U testbrain -d testbrain']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    # Deliberately not published. Only the API needs to reach the database.
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: testbrain-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://testbrain:${POSTGRES_PASSWORD}@postgres:5432/testbrain?schema=public
+      SESSION_SECRET: ${SESSION_SECRET:?set SESSION_SECRET in .env}
+      APP_URL: ${APP_URL:-http://localhost:3000}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # Also not published: the browser reaches the API through the web container.
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    container_name: testbrain-web
+    restart: unless-stopped
+    ports:
+      - '${APP_PORT:-3000}:80'
+    depends_on:
+      - api
+
+volumes:
+  testbrain_data:

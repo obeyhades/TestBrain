@@ -2,8 +2,8 @@
 
 Self-hosted QA and software testing platform for small development teams.
 
-> **Status: in development.** The sections below describe what exists today.
-> Features still to be built are listed under [Roadmap](#roadmap).
+A small team can write down what the product should do, describe how to check it,
+run those checks, record what broke, and decide whether a version is fit to ship.
 
 ## What is TestBrain?
 
@@ -19,15 +19,50 @@ services, and no paid dependencies.
 
 ## Why I Built It
 
-_To be written._
+Most portfolio projects are a CRUD app with a login screen. I wanted one with real
+rules in it: who may change what, what counts as an executed test, when a version
+is allowed to ship. Those are the parts worth talking about, and the parts worth
+testing.
+
+The engineering constraint was as deliberate as the product: boring, explicit code
+that a junior developer can read top to bottom. There is no clever abstraction in
+here to be impressed by, which is the point.
 
 ## Features
 
-_Not built yet — see [Roadmap](#roadmap)._
+**Projects and people.** Create a project, add members by email, give each one a
+role. A role belongs to a membership, so somebody can be QA on one project and a
+developer on another.
+
+**Requirements.** What the product is supposed to do. Test cases link to them, which
+is what makes the trail readable later.
+
+**Test cases with ordered steps.** Each step is an action and an expected result,
+kept as rows rather than buried in a blob of text. Steps are reordered by moving
+them; the order on screen is the order that gets saved.
+
+**Test runs.** One round of testing. Add test cases, then mark each one Passed,
+Failed or Blocked. A summary updates as you go, and blocked tests are left out of
+the pass rate — a run where one test passed and the rest are blocked is at 100% of
+what could actually be checked.
+
+**Defects.** A failed test carries a "Report defect" link that brings the test case
+and the run along with it. Defects are closed rather than deleted, so the history
+stays honest.
+
+**Releases.** Point test runs at a version and it tells you whether it can ship,
+with the reasons in plain words: _1 critical defect is still unresolved, 1 test is
+failing_.
+
+The whole trail:
+
+```
+Requirement → Test Case → Test Run → Defect → Release
+```
 
 ## Screenshots
 
-_To be added once the UI exists._
+_To be added._
 
 ## Architecture
 
@@ -104,20 +139,62 @@ npm run db:up
 ```
 
 ```bash
-npm test
+npm test          # unit, integration and component tests
+npm run test:e2e  # the browser tests
 ```
+
+There is more in [docs/testing.md](docs/testing.md), including the security tests
+that were checked by deliberately breaking the code to confirm they went red.
 
 ## Self Hosting
 
-_The production Docker Compose stack is added in a later phase._
+TestBrain runs entirely on your own machine. No Supabase, no Firebase, no Auth0,
+nothing to sign up for.
+
+```bash
+git clone https://github.com/obeyhades/TestBrain.git
+cd TestBrain
+cp .env.example .env
+```
+
+Fill in `POSTGRES_PASSWORD` and `SESSION_SECRET`, then:
+
+```bash
+docker compose up -d
+```
+
+Open **http://localhost:3000**. The first visitor is asked to create the account
+that owns the instance; registration closes after that, and the owner creates
+accounts for everybody else.
+
+Migrations run when the API container starts, so there is nothing else to remember.
+
+| Variable            | What it is                                                    |
+| ------------------- | ------------------------------------------------------------- |
+| `POSTGRES_PASSWORD` | Database password, used by both containers                    |
+| `SESSION_SECRET`    | Signs session cookies. At least 32 characters                 |
+| `APP_URL`           | The address people use. Decides whether cookies require HTTPS |
+| `APP_PORT`          | Host port for the web container. Defaults to 3000             |
 
 ## Docker
 
-Development uses a single container for PostgreSQL; the API and web app run on the host
-so reloads stay fast.
+Three containers, no orchestration platform:
+
+| Container  | What it does                                  | Published |
+| ---------- | --------------------------------------------- | --------- |
+| `web`      | nginx: serves the React build, proxies `/api` | port 3000 |
+| `api`      | Fastify, runs migrations on start             | no        |
+| `postgres` | The database, on a named volume               | no        |
+
+Only the web container is reachable from outside. The browser talks to one origin,
+which is why the session cookie is first-party and there is no CORS configuration
+in the project.
+
+Development uses a single PostgreSQL container instead, with the apps running on
+the host so reloads stay fast:
 
 ```bash
-npm run db:up      # start PostgreSQL
+npm run db:up      # just the database
 npm run db:down    # stop it
 ```
 
@@ -168,22 +245,23 @@ Duplication is sometimes preferable to a bad abstraction. Where this codebase re
 itself on purpose, the repetition is the point: it keeps each call site readable on its
 own.
 
-## Roadmap
+## Out of Scope
 
-Authentication · projects and members · requirements · test cases and steps · test runs
-and results · defects · releases · production Docker stack · Playwright end-to-end tests.
-
-Deliberately out of scope for the first version: integrations (GitHub, Jira, Slack),
-email, real-time updates, configurable workflows, custom roles, a public API, file
-uploads, and advanced analytics.
+Deliberately not built: integrations (GitHub, Jira, Slack), email notifications,
+real-time updates, configurable workflows, custom roles, a public API, file uploads
+and advanced analytics. Some of those are the most interesting features a QA tool
+can have. Building them before the core worked would have been the wrong order.
 
 ## Future Improvements
 
-- Snapshot test case content into a test run, so editing a case later does not rewrite
-  the history of past runs.
+- Snapshot test case content into a test run, so editing a case later does not
+  rewrite the history of past runs. This is the most significant known limitation.
 - Many-to-many links between requirements and test cases.
 - Import automated test results (JUnit XML).
 - Attach screenshots and logs to defects.
+- Human-readable keys per project (`TC-12`, `BUG-4`).
+- A smaller API image: it currently ships its build dependencies so that migrations
+  can run at startup with the same toolchain.
 
 ## License
 
