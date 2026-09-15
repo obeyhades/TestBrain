@@ -1,7 +1,7 @@
 // Database schema for TestBrain.
 //
-// Models are added phase by phase. Today this covers authentication only;
-// projects, test cases, test runs, defects and releases follow.
+// Models are added phase by phase. Today this covers authentication and projects;
+// requirements, test cases, test runs, defects and releases follow.
 
 generator client {
   provider = "prisma-client"
@@ -12,6 +12,16 @@ datasource db {
   provider = "postgresql"
 }
 
+/// What somebody may do inside one project. A person can hold a different role in
+/// every project they belong to, which is why this lives on ProjectMember rather
+/// than on User.
+enum ProjectRole {
+  ADMIN
+  PROJECT_MANAGER
+  QA
+  DEVELOPER
+}
+
 model User {
   id    String @id @default(cuid())
   email String @unique
@@ -20,14 +30,16 @@ model User {
   /// Argon2id hash. The plaintext password is never stored or logged.
   passwordHash String
 
-  /// Whoever registers first owns the instance. Instance admins manage users;
+  /// Whoever registers first owns the instance. Instance admins create accounts;
   /// what someone may do *inside* a project is decided by their project role.
   isInstanceAdmin Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  sessions Session[]
+  sessions        Session[]
+  memberships     ProjectMember[]
+  createdProjects Project[]       @relation("ProjectCreatedBy")
 }
 
 /// A signed-in session.
@@ -45,5 +57,41 @@ model Session {
 
   // PostgreSQL does not index foreign keys automatically, and every logout-everywhere
   // and cascade delete looks sessions up by user.
+  @@index([userId])
+}
+
+model Project {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Restrict, not Cascade: removing a person must never silently delete the
+  // projects they happened to create.
+  createdBy User            @relation("ProjectCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  members   ProjectMember[]
+
+  @@index([createdById])
+}
+
+/// Somebody's place in one project. Membership is itself the permission to see the
+/// project at all; the role decides what they may change.
+model ProjectMember {
+  id        String      @id @default(cuid())
+  projectId String
+  userId    String
+  role      ProjectRole
+  createdAt DateTime    @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // One role per person per project, decided by the database rather than by code
+  // remembering to check.
+  @@unique([projectId, userId])
+  // Listing "my projects" looks members up by user alone.
   @@index([userId])
 }
