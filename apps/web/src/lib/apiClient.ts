@@ -77,6 +77,20 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   return (await response.json()) as T;
 }
 
+export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
+  const response = await request(path, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  return (await response.json()) as T;
+}
+
+export async function apiDelete(path: string): Promise<void> {
+  await request(path, { method: 'DELETE' });
+}
+
 /**
  * Separate from apiPost because some endpoints answer 204 No Content, and calling
  * response.json() on an empty body throws. Two small functions beat one that has to

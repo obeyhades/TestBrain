@@ -1,10 +1,18 @@
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, redirect } from 'react-router';
 import { AppLayout } from './layouts/AppLayout';
+import { ProjectLayout, projectLayoutLoader } from './layouts/ProjectLayout';
 import { LoginPage, loginAction, loginPageLoader } from './features/auth/LoginPage';
 import { RegisterPage, registerAction, registerPageLoader } from './features/auth/RegisterPage';
 import { logoutAction } from './features/auth/logout';
 import { requireUser } from './features/auth/requireUser';
-import { SystemStatusPage, systemStatusLoader } from './features/system/SystemStatusPage';
+import { MembersPage, membersAction, membersLoader } from './features/projects/MembersPage';
+import { ProjectOverviewPage } from './features/projects/ProjectOverviewPage';
+import { ProjectsPage, projectsAction, projectsLoader } from './features/projects/ProjectsPage';
+import {
+  CreateUserPage,
+  createUserAction,
+  createUserLoader,
+} from './features/users/CreateUserPage';
 
 /**
  * The whole route tree in one readable place.
@@ -38,8 +46,36 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <SystemStatusPage />,
-        loader: systemStatusLoader,
+        loader: () => redirect('/projects'),
+      },
+      {
+        path: '/projects',
+        element: <ProjectsPage />,
+        loader: projectsLoader,
+        action: projectsAction,
+      },
+      {
+        path: '/projects/:projectId',
+        element: <ProjectLayout />,
+        loader: projectLayoutLoader,
+        children: [
+          {
+            index: true,
+            element: <ProjectOverviewPage />,
+          },
+          {
+            path: 'members',
+            element: <MembersPage />,
+            loader: membersLoader,
+            action: membersAction,
+          },
+        ],
+      },
+      {
+        path: '/users/new',
+        element: <CreateUserPage />,
+        loader: createUserLoader,
+        action: createUserAction,
       },
     ],
   },
