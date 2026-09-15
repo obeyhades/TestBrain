@@ -4,6 +4,8 @@
 #   docker compose up -d
 #
 # Then open http://localhost:3000
+name: testbrain
+
 services:
   postgres:
     image: postgres:16-alpine

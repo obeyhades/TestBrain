@@ -13,15 +13,23 @@ export const E2E_DATABASE_URL =
 
 export default function globalSetup(): void {
   try {
-    execSync('npx prisma migrate reset --force --skip-seed --skip-generate', {
+    execSync('npx prisma migrate reset --force', {
       cwd: 'apps/api',
       env: { ...process.env, DATABASE_URL: E2E_DATABASE_URL },
       stdio: 'pipe',
     });
-  } catch {
+  } catch (error) {
+    // The original output is included on purpose. An earlier version of this
+    // swallowed it and always blamed PostgreSQL, which sent me looking in the
+    // wrong place when the real problem was an unrecognised command line flag.
+    const details = error instanceof Error && 'stderr' in error ? String(error.stderr) : '';
+    const output = error instanceof Error && 'stdout' in error ? String(error.stdout) : '';
+
     throw new Error(
       `Could not prepare the end-to-end database at ${E2E_DATABASE_URL}\n` +
-        'Is PostgreSQL running? Start it with:  npm run db:up',
+        'If PostgreSQL is not running, start it with:  npm run db:up\n\n' +
+        `${details}${output}`.trim(),
+      { cause: error },
     );
   }
 }
