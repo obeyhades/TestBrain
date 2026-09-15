@@ -32,3 +32,13 @@ export function canEditRequirements(role: ProjectRole): boolean {
 export function canEditTestCases(role: ProjectRole): boolean {
   return role === 'ADMIN' || role === 'PROJECT_MANAGER' || role === 'QA';
 }
+
+/**
+ * Create test runs, put test cases into them, and record results.
+ *
+ * Developers can read a run and see what failed, but recording the outcome of a
+ * test is the job of whoever ran it.
+ */
+export function canRunTests(role: ProjectRole): boolean {
+  return role === 'ADMIN' || role === 'PROJECT_MANAGER' || role === 'QA';
+}

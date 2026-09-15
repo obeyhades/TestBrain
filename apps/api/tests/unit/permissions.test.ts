@@ -4,6 +4,7 @@ import {
   canEditRequirements,
   canEditTestCases,
   canManageProject,
+  canRunTests,
 } from '../../src/modules/projects/permissions.js';
 
 const EVERY_ROLE: ProjectRole[] = ['ADMIN', 'PROJECT_MANAGER', 'QA', 'DEVELOPER'];
@@ -51,5 +52,17 @@ describe('canEditTestCases', () => {
 
   it('leaves developers with read access only', () => {
     expect(canEditTestCases('DEVELOPER')).toBe(false);
+  });
+});
+
+describe('canRunTests', () => {
+  it('lets administrators, project managers and testers record results', () => {
+    expect(canRunTests('ADMIN')).toBe(true);
+    expect(canRunTests('PROJECT_MANAGER')).toBe(true);
+    expect(canRunTests('QA')).toBe(true);
+  });
+
+  it('leaves developers reading runs rather than recording them', () => {
+    expect(canRunTests('DEVELOPER')).toBe(false);
   });
 });

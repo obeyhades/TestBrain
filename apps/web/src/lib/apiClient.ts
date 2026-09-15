@@ -92,10 +92,21 @@ export async function apiDelete(path: string): Promise<void> {
 }
 
 /**
- * Separate from apiPost because some endpoints answer 204 No Content, and calling
- * response.json() on an empty body throws. Two small functions beat one that has to
- * guess which kind of response it is looking at.
+ * For endpoints that answer 204 No Content.
+ *
+ * Separate from apiPost and apiPatch because calling response.json() on an empty
+ * body throws -- which is exactly the bug this replaced: adding test cases to a run
+ * worked, and then the page showed an error anyway.
  */
-export async function apiPostWithoutResponse(path: string): Promise<void> {
-  await request(path, { method: 'POST' });
+export async function apiSendWithoutResponse(
+  method: 'POST' | 'PUT' | 'PATCH',
+  path: string,
+  body?: unknown,
+): Promise<void> {
+  await request(path, {
+    method,
+    ...(body === undefined
+      ? {}
+      : { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+  });
 }

@@ -3,7 +3,7 @@ import {
   ApiError,
   apiGet,
   apiPost,
-  apiPostWithoutResponse,
+  apiSendWithoutResponse,
   toUserMessage,
 } from '../src/lib/apiClient';
 
@@ -72,20 +72,50 @@ describe('apiPost', () => {
   });
 });
 
-describe('apiPostWithoutResponse', () => {
-  it('handles an empty 204 response instead of trying to parse it', async () => {
+describe('apiSendWithoutResponse', () => {
+  function respondWithNoContent() {
     vi.stubGlobal(
       'fetch',
       vi.fn(async () => new Response(null, { status: 204 })),
     );
+  }
 
-    await expect(apiPostWithoutResponse('/auth/logout')).resolves.toBeUndefined();
+  it('handles an empty 204 response instead of trying to parse it', async () => {
+    respondWithNoContent();
+
+    await expect(apiSendWithoutResponse('POST', '/auth/logout')).resolves.toBeUndefined();
+  });
+
+  it('sends a body when there is one, still expecting no answer', async () => {
+    respondWithNoContent();
+
+    await apiSendWithoutResponse('POST', '/test-runs/1/test-cases', { testCaseIds: ['a'] });
+
+    expect(fetch).toHaveBeenCalledWith(
+      '/api/test-runs/1/test-cases',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ testCaseIds: ['a'] }),
+      }),
+    );
+  });
+
+  it('works for PUT and PATCH as well as POST', async () => {
+    respondWithNoContent();
+
+    await expect(
+      apiSendWithoutResponse('PUT', '/results/1', { status: 'PASSED' }),
+    ).resolves.toBeUndefined();
+
+    await expect(
+      apiSendWithoutResponse('PATCH', '/test-runs/1', { completed: true }),
+    ).resolves.toBeUndefined();
   });
 
   it('still throws on a failure', async () => {
     respondWith(401, { error: 'You must be signed in to do this' });
 
-    await expect(apiPostWithoutResponse('/auth/logout')).rejects.toThrow(ApiError);
+    await expect(apiSendWithoutResponse('POST', '/auth/logout')).rejects.toThrow(ApiError);
   });
 });
 

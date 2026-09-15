@@ -1,4 +1,4 @@
-import { ApiError, apiGet, apiPost, apiPostWithoutResponse } from '../../lib/apiClient';
+import { ApiError, apiGet, apiPost, apiSendWithoutResponse } from '../../lib/apiClient';
 
 export type CurrentUser = {
   id: string;
@@ -48,5 +48,5 @@ export function register(input: {
 }
 
 export function logout(): Promise<void> {
-  return apiPostWithoutResponse('/auth/logout');
+  return apiSendWithoutResponse('POST', '/auth/logout');
 }

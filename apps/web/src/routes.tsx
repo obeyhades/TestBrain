@@ -29,6 +29,12 @@ import {
   testCasesLoader,
 } from './features/testCases/TestCasesPage';
 import {
+  TestRunDetailPage,
+  testRunAction,
+  testRunLoader,
+} from './features/testRuns/TestRunDetailPage';
+import { TestRunsPage, testRunsAction, testRunsLoader } from './features/testRuns/TestRunsPage';
+import {
   CreateUserPage,
   createUserAction,
   createUserLoader,
@@ -106,6 +112,18 @@ export const router = createBrowserRouter([
             element: <TestCaseDetailPage />,
             loader: testCaseLoader,
             action: testCaseAction,
+          },
+          {
+            path: 'test-runs',
+            element: <TestRunsPage />,
+            loader: testRunsLoader,
+            action: testRunsAction,
+          },
+          {
+            path: 'test-runs/:testRunId',
+            element: <TestRunDetailPage />,
+            loader: testRunLoader,
+            action: testRunAction,
           },
           {
             path: 'members',

@@ -8,6 +8,7 @@ import { healthRoutes } from './modules/health/health.routes.js';
 import { projectRoutes } from './modules/projects/project.routes.js';
 import { requirementRoutes } from './modules/requirements/requirement.routes.js';
 import { testCaseRoutes } from './modules/testCases/testCase.routes.js';
+import { testRunRoutes } from './modules/testRuns/testRun.routes.js';
 
 type ServerOptions = {
   logger: boolean;
@@ -45,6 +46,7 @@ export function buildServer(options: ServerOptions): FastifyInstance {
   app.register(projectRoutes({ prisma: options.prisma }), { prefix: '/api' });
   app.register(requirementRoutes({ prisma: options.prisma }), { prefix: '/api' });
   app.register(testCaseRoutes({ prisma: options.prisma }), { prefix: '/api' });
+  app.register(testRunRoutes({ prisma: options.prisma }), { prefix: '/api' });
 
   // Closing the app releases the database pool, so tests and shutdowns do not
   // leave connections behind.

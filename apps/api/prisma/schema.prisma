@@ -37,6 +37,19 @@ enum Priority {
   CRITICAL
 }
 
+enum TestRunStatus {
+  OPEN
+  COMPLETED
+}
+
+/// The outcome of running one test case in one test run.
+enum TestResultStatus {
+  NOT_RUN
+  PASSED
+  FAILED
+  BLOCKED
+}
+
 model User {
   id    String @id @default(cuid())
   email String @unique
@@ -57,6 +70,8 @@ model User {
   createdProjects     Project[]       @relation("ProjectCreatedBy")
   createdRequirements Requirement[]   @relation("RequirementCreatedBy")
   createdTestCases    TestCase[]      @relation("TestCaseCreatedBy")
+  createdTestRuns     TestRun[]       @relation("TestRunCreatedBy")
+  executedResults     TestResult[]    @relation("TestResultExecutedBy")
 }
 
 /// A signed-in session.
@@ -92,6 +107,7 @@ model Project {
   members      ProjectMember[]
   requirements Requirement[]
   testCases    TestCase[]
+  testRuns     TestRun[]
 
   @@index([createdById])
 }
@@ -159,6 +175,7 @@ model TestCase {
   requirement Requirement? @relation(fields: [requirementId], references: [id], onDelete: SetNull)
   createdBy   User         @relation("TestCaseCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
   steps       TestStep[]
+  results     TestResult[]
 
   @@index([projectId])
   @@index([requirementId])
@@ -176,4 +193,49 @@ model TestStep {
 
   // Two steps cannot share a position in the same test case.
   @@unique([testCaseId, position])
+}
+
+/// One round of testing, for example "Regression - v1.4.0".
+model TestRun {
+  id        String        @id @default(cuid())
+  projectId String
+  name      String
+  status    TestRunStatus @default(OPEN)
+
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project   Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy User         @relation("TestRunCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  results   TestResult[]
+
+  @@index([projectId])
+  @@index([createdById])
+}
+
+/// One test case inside one test run.
+///
+/// This is also what puts a test case into a run: adding a case means creating a
+/// result for it, still NOT_RUN. One table instead of two, so "what is in the run"
+/// and "how it went" can never disagree.
+model TestResult {
+  id         String           @id @default(cuid())
+  testRunId  String
+  testCaseId String
+  status     TestResultStatus @default(NOT_RUN)
+  notes      String?
+
+  executedById String?
+  executedAt   DateTime?
+
+  testRun    TestRun  @relation(fields: [testRunId], references: [id], onDelete: Cascade)
+  testCase   TestCase @relation(fields: [testCaseId], references: [id], onDelete: Cascade)
+  executedBy User?    @relation("TestResultExecutedBy", fields: [executedById], references: [id], onDelete: SetNull)
+
+  // A test case appears at most once in a run.
+  @@unique([testRunId, testCaseId])
+  @@index([testRunId])
+  @@index([testCaseId])
+  @@index([executedById])
 }
