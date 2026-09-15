@@ -1,5 +1,11 @@
 import { createBrowserRouter, redirect } from 'react-router';
 import { AppLayout } from './layouts/AppLayout';
+import {
+  ReleaseDetailPage,
+  releaseAction,
+  releaseLoader,
+} from './features/releases/ReleaseDetailPage';
+import { ReleasesPage, releasesAction, releasesLoader } from './features/releases/ReleasesPage';
 import { DefectDetailPage, defectAction, defectLoader } from './features/defects/DefectDetailPage';
 import { DefectsPage, defectsLoader } from './features/defects/DefectsPage';
 import { NewDefectPage, newDefectAction, newDefectLoader } from './features/defects/NewDefectPage';
@@ -144,6 +150,18 @@ export const router = createBrowserRouter([
             element: <DefectDetailPage />,
             loader: defectLoader,
             action: defectAction,
+          },
+          {
+            path: 'releases',
+            element: <ReleasesPage />,
+            loader: releasesLoader,
+            action: releasesAction,
+          },
+          {
+            path: 'releases/:releaseId',
+            element: <ReleaseDetailPage />,
+            loader: releaseLoader,
+            action: releaseAction,
           },
           {
             path: 'members',

@@ -67,6 +67,12 @@ enum DefectStatus {
   CLOSED
 }
 
+enum ReleaseStatus {
+  PLANNED
+  IN_TESTING
+  RELEASED
+}
+
 model User {
   id    String @id @default(cuid())
   email String @unique
@@ -91,6 +97,7 @@ model User {
   executedResults     TestResult[]    @relation("TestResultExecutedBy")
   reportedDefects     Defect[]        @relation("DefectCreatedBy")
   assignedDefects     Defect[]        @relation("DefectAssignedTo")
+  createdReleases     Release[]       @relation("ReleaseCreatedBy")
 }
 
 /// A signed-in session.
@@ -128,6 +135,7 @@ model Project {
   testCases    TestCase[]
   testRuns     TestRun[]
   defects      Defect[]
+  releases     Release[]
 
   @@index([createdById])
 }
@@ -220,6 +228,7 @@ model TestStep {
 model TestRun {
   id        String        @id @default(cuid())
   projectId String
+  releaseId String?
   name      String
   status    TestRunStatus @default(OPEN)
 
@@ -232,7 +241,11 @@ model TestRun {
   results   TestResult[]
   defects   Defect[]
 
+  // SetNull: deleting a release must not delete the runs that validated it.
+  release Release? @relation(fields: [releaseId], references: [id], onDelete: SetNull)
+
   @@index([projectId])
+  @@index([releaseId])
   @@index([createdById])
 }
 
@@ -296,5 +309,30 @@ model Defect {
   @@index([testCaseId])
   @@index([testRunId])
   @@index([assignedToId])
+  @@index([createdById])
+}
+
+/// A version being prepared for shipping.
+///
+/// A release does not hold test results of its own. It reads them from the test
+/// runs pointed at it, so there is one place where a result lives.
+model Release {
+  id          String        @id @default(cuid())
+  projectId   String
+  name        String
+  version     String
+  description String?
+  status      ReleaseStatus @default(PLANNED)
+  targetDate  DateTime?
+
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdBy User      @relation("ReleaseCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  testRuns  TestRun[]
+
+  @@index([projectId])
   @@index([createdById])
 }

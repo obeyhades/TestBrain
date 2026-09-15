@@ -42,3 +42,11 @@ export function canEditTestCases(role: ProjectRole): boolean {
 export function canRunTests(role: ProjectRole): boolean {
   return role === 'ADMIN' || role === 'PROJECT_MANAGER' || role === 'QA';
 }
+
+/**
+ * Plan releases and decide what goes into them. Testers record results; whether a
+ * version ships is a decision for whoever is running the project.
+ */
+export function canManageReleases(role: ProjectRole): boolean {
+  return role === 'ADMIN' || role === 'PROJECT_MANAGER';
+}

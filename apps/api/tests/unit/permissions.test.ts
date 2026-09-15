@@ -4,6 +4,7 @@ import {
   canEditRequirements,
   canEditTestCases,
   canManageProject,
+  canManageReleases,
   canRunTests,
 } from '../../src/modules/projects/permissions.js';
 
@@ -64,5 +65,17 @@ describe('canRunTests', () => {
 
   it('leaves developers reading runs rather than recording them', () => {
     expect(canRunTests('DEVELOPER')).toBe(false);
+  });
+});
+
+describe('canManageReleases', () => {
+  it('lets administrators and project managers plan releases', () => {
+    expect(canManageReleases('ADMIN')).toBe(true);
+    expect(canManageReleases('PROJECT_MANAGER')).toBe(true);
+  });
+
+  it('does not let testers or developers decide what ships', () => {
+    expect(canManageReleases('QA')).toBe(false);
+    expect(canManageReleases('DEVELOPER')).toBe(false);
   });
 });
