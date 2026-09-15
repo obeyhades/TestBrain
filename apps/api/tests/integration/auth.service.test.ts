@@ -1,13 +1,14 @@
 import { afterAll, beforeEach, describe, expect, it } from 'vitest';
 import { createTestPrismaClient, resetDatabase } from '../helpers/testDatabase.js';
 import {
+  createUserAsInstanceAdmin,
   getUserForSessionToken,
   loginUser,
   logoutUser,
   registerUser,
 } from '../../src/modules/auth/auth.service.js';
 import { hashSessionToken } from '../../src/modules/auth/sessionToken.js';
-import { ForbiddenError, UnauthorizedError } from '../../src/shared/errors.js';
+import { ConflictError, ForbiddenError, UnauthorizedError } from '../../src/shared/errors.js';
 
 const prisma = createTestPrismaClient();
 
@@ -184,5 +185,58 @@ describe('logoutUser', () => {
     await prisma.user.deleteMany();
 
     expect(await getUserForSessionToken(prisma, token, NOW)).toBeNull();
+  });
+});
+
+describe('createUserAsInstanceAdmin', () => {
+  const NEWCOMER = {
+    email: 'tester@example.com',
+    name: 'Tess',
+    password: 'another-long-passphrase',
+  };
+
+  it('lets the instance administrator create an account', async () => {
+    const admin = await registerUser(prisma, OWNER);
+
+    const created = await createUserAsInstanceAdmin(prisma, admin, NEWCOMER);
+
+    expect(created).toMatchObject({ email: NEWCOMER.email, name: 'Tess' });
+  });
+
+  it('does not hand out instance administration', async () => {
+    const admin = await registerUser(prisma, OWNER);
+
+    const created = await createUserAsInstanceAdmin(prisma, admin, NEWCOMER);
+
+    expect(created.isInstanceAdmin).toBe(false);
+  });
+
+  it('gives the new account a working password', async () => {
+    const admin = await registerUser(prisma, OWNER);
+    await createUserAsInstanceAdmin(prisma, admin, NEWCOMER);
+
+    await expect(
+      loginUser(prisma, { email: NEWCOMER.email, password: NEWCOMER.password }, NOW),
+    ).resolves.toMatchObject({ user: { email: NEWCOMER.email } });
+  });
+
+  it('refuses somebody who is not an instance administrator', async () => {
+    const admin = await registerUser(prisma, OWNER);
+    const ordinary = await createUserAsInstanceAdmin(prisma, admin, NEWCOMER);
+
+    await expect(
+      createUserAsInstanceAdmin(prisma, ordinary, {
+        email: 'third@example.com',
+        name: 'Third',
+        password: 'yet-another-passphrase',
+      }),
+    ).rejects.toThrow(ForbiddenError);
+  });
+
+  it('refuses an address that already has an account', async () => {
+    const admin = await registerUser(prisma, OWNER);
+    await createUserAsInstanceAdmin(prisma, admin, NEWCOMER);
+
+    await expect(createUserAsInstanceAdmin(prisma, admin, NEWCOMER)).rejects.toThrow(ConflictError);
   });
 });

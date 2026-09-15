@@ -22,7 +22,10 @@ export function createTestPrismaClient(): PrismaClient {
 
 /** Empties every table so each test starts from a known state. */
 export async function resetDatabase(prisma: PrismaClient): Promise<void> {
-  // Sessions first: they reference users.
+  // Order matters. Sessions and memberships point at users, and a project refuses
+  // to let its creator be deleted, so users go last.
   await prisma.session.deleteMany();
+  await prisma.projectMember.deleteMany();
+  await prisma.project.deleteMany();
   await prisma.user.deleteMany();
 }
