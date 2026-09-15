@@ -4,6 +4,7 @@ import type { PrismaClient } from './database/prisma.js';
 import { registerErrorHandler } from './middleware/errorHandler.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { buildSessionCookieOptions } from './modules/auth/sessionCookie.js';
+import { defectRoutes } from './modules/defects/defect.routes.js';
 import { healthRoutes } from './modules/health/health.routes.js';
 import { projectRoutes } from './modules/projects/project.routes.js';
 import { requirementRoutes } from './modules/requirements/requirement.routes.js';
@@ -47,6 +48,7 @@ export function buildServer(options: ServerOptions): FastifyInstance {
   app.register(requirementRoutes({ prisma: options.prisma }), { prefix: '/api' });
   app.register(testCaseRoutes({ prisma: options.prisma }), { prefix: '/api' });
   app.register(testRunRoutes({ prisma: options.prisma }), { prefix: '/api' });
+  app.register(defectRoutes({ prisma: options.prisma }), { prefix: '/api' });
 
   // Closing the app releases the database pool, so tests and shutdowns do not
   // leave connections behind.

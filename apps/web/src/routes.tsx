@@ -1,5 +1,8 @@
 import { createBrowserRouter, redirect } from 'react-router';
 import { AppLayout } from './layouts/AppLayout';
+import { DefectDetailPage, defectAction, defectLoader } from './features/defects/DefectDetailPage';
+import { DefectsPage, defectsLoader } from './features/defects/DefectsPage';
+import { NewDefectPage, newDefectAction, newDefectLoader } from './features/defects/NewDefectPage';
 import { ProjectLayout, projectLayoutLoader } from './layouts/ProjectLayout';
 import { LoginPage, loginAction, loginPageLoader } from './features/auth/LoginPage';
 import { RegisterPage, registerAction, registerPageLoader } from './features/auth/RegisterPage';
@@ -124,6 +127,23 @@ export const router = createBrowserRouter([
             element: <TestRunDetailPage />,
             loader: testRunLoader,
             action: testRunAction,
+          },
+          {
+            path: 'defects',
+            element: <DefectsPage />,
+            loader: defectsLoader,
+          },
+          {
+            path: 'defects/new',
+            element: <NewDefectPage />,
+            loader: newDefectLoader,
+            action: newDefectAction,
+          },
+          {
+            path: 'defects/:defectId',
+            element: <DefectDetailPage />,
+            loader: defectLoader,
+            action: defectAction,
           },
           {
             path: 'members',

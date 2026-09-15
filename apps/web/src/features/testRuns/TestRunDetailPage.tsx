@@ -1,4 +1,4 @@
-import { Form, useActionData, useLoaderData, useNavigation } from 'react-router';
+import { Form, Link, useActionData, useLoaderData, useNavigation, useParams } from 'react-router';
 import type { ActionFunctionArgs, LoaderFunctionArgs } from 'react-router';
 import { Button } from '../../components/Button';
 import { toUserMessage } from '../../lib/apiClient';
@@ -73,6 +73,7 @@ export async function testRunAction({ params, request }: ActionFunctionArgs) {
 
 export function TestRunDetailPage() {
   const { testRun, availableTestCases } = useLoaderData() as LoaderData;
+  const { projectId } = useParams();
   const actionResult = useActionData() as ActionResult | undefined;
   const navigation = useNavigation();
   const isBusy = navigation.state === 'submitting';
@@ -167,7 +168,25 @@ export function TestRunDetailPage() {
                 </td>
 
                 <td className="py-2 text-right">
-                  <Form method="post">
+                  {/* A failed test is the usual way a defect gets reported, so the
+                      link carries the test and the run along with it. */}
+                  {result.status === 'FAILED' ? (
+                    <Link
+                      to={{
+                        pathname: `/projects/${projectId}/defects/new`,
+                        search: new URLSearchParams({
+                          title: result.title,
+                          testCaseId: result.testCaseId,
+                          testRunId: testRun.id,
+                        }).toString(),
+                      }}
+                      className="mr-2 text-xs font-medium text-accent hover:underline"
+                    >
+                      Report defect
+                    </Link>
+                  ) : null}
+
+                  <Form method="post" className="inline-block">
                     <input type="hidden" name="intent" value="remove" />
                     <input type="hidden" name="testCaseId" value={result.testCaseId} />
                     <Button type="submit" variant="secondary" disabled={isBusy}>

@@ -15,6 +15,7 @@ const SECTIONS = [
   { to: 'requirements', label: 'Requirements', end: false },
   { to: 'test-cases', label: 'Test cases', end: false },
   { to: 'test-runs', label: 'Test runs', end: false },
+  { to: 'defects', label: 'Defects', end: false },
   { to: 'members', label: 'Members', end: false },
 ];
 
