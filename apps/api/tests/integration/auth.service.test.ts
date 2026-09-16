@@ -57,12 +57,20 @@ describe('registerUser', () => {
     expect(user.email).toBe('owner@example.com');
   });
 
-  it('refuses a second registration, because the instance already has an owner', async () => {
+  it('makes every account after the first an ordinary user, not an administrator', async () => {
     await registerUser(prisma, OWNER);
 
-    await expect(
-      registerUser(prisma, { ...OWNER, email: 'someone.else@example.com' }),
-    ).rejects.toThrow(ForbiddenError);
+    const second = await registerUser(prisma, { ...OWNER, email: 'someone.else@example.com' });
+
+    expect(second.isInstanceAdmin).toBe(false);
+  });
+
+  it('refuses an address that already has an account', async () => {
+    await registerUser(prisma, OWNER);
+
+    await expect(registerUser(prisma, { ...OWNER, name: 'Impostor' })).rejects.toThrow(
+      ConflictError,
+    );
   });
 });
 

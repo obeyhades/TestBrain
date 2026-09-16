@@ -71,26 +71,29 @@ export async function isAwaitingFirstUser(prisma: PrismaClient): Promise<boolean
 }
 
 /**
- * Creates the account that owns this instance.
- *
- * Registration is open only until somebody takes it. After that an administrator
- * creates accounts, which arrives with project members.
+ * Creates an account. Anybody may sign up. The very first account to exist becomes
+ * the instance administrator; everyone after it is an ordinary user who sees
+ * nothing until added to a project.
  */
 export async function registerUser(
   prisma: PrismaClient,
   input: RegisterInput,
 ): Promise<AuthenticatedUser> {
-  // Two people registering in the same instant could both pass this check. On a
-  // self-hosted instance being set up by its owner that is not worth a lock.
-  if ((await authRepository.countUsers(prisma)) > 0) {
-    throw new ForbiddenError('Registration is closed. Ask an administrator for an account.');
+  const email = normalizeEmail(input.email);
+
+  if ((await authRepository.findUserByEmail(prisma, email)) !== null) {
+    throw new ConflictError('An account with that email address already exists');
   }
 
+  // Two people signing up in the same instant on an empty instance could both
+  // become administrators. On a self-hosted first run that is not worth a lock.
+  const isFirstUser = (await authRepository.countUsers(prisma)) === 0;
+
   const user = await authRepository.createUser(prisma, {
-    email: normalizeEmail(input.email),
+    email,
     name: input.name,
     passwordHash: await hashPassword(input.password),
-    isInstanceAdmin: true,
+    isInstanceAdmin: isFirstUser,
   });
 
   return toAuthenticatedUser(user);

@@ -59,3 +59,14 @@ describe('LoginPage', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 });
+
+describe('LoginPage sign-up link', () => {
+  it('offers a way to sign up', async () => {
+    renderLoginPage();
+
+    expect(await screen.findByRole('link', { name: 'Sign up' })).toHaveAttribute(
+      'href',
+      '/register',
+    );
+  });
+});

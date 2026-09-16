@@ -1,4 +1,4 @@
-import { Form, redirect, useActionData, useNavigation } from 'react-router';
+import { Form, Link, redirect, useActionData, useLoaderData, useNavigation } from 'react-router';
 import type { ActionFunctionArgs } from 'react-router';
 import { Button } from '../../components/Button';
 import { TextField } from '../../components/TextField';
@@ -6,22 +6,22 @@ import { AuthLayout } from '../../layouts/AuthLayout';
 import { toUserMessage } from '../../lib/apiClient';
 import { fetchCurrentUser, fetchSetupStatus, register } from './auth.api';
 
+type RegisterLoaderData = {
+  needsSetup: boolean;
+};
+
 type RegisterActionResult = {
   error: string;
 };
 
-export async function registerPageLoader(): Promise<null> {
+export async function registerPageLoader(): Promise<RegisterLoaderData> {
   if ((await fetchCurrentUser()) !== null) {
     throw redirect('/');
   }
 
-  // This screen creates the account that owns the instance. Once it exists there
-  // is nothing here to do, so visitors go to the sign-in screen instead.
-  if (!(await fetchSetupStatus()).needsSetup) {
-    throw redirect('/login');
-  }
-
-  return null;
+  // Anybody may sign up. What changes is only the wording: the very first account
+  // owns the instance, and the screen says so.
+  return fetchSetupStatus();
 }
 
 export async function registerAction({ request }: ActionFunctionArgs) {
@@ -41,12 +41,20 @@ export async function registerAction({ request }: ActionFunctionArgs) {
 }
 
 export function RegisterPage() {
+  const { needsSetup } = useLoaderData() as RegisterLoaderData;
   const actionResult = useActionData() as RegisterActionResult | undefined;
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
 
   return (
-    <AuthLayout title="Set up TestBrain" description="This first account administers the instance.">
+    <AuthLayout
+      title={needsSetup ? 'Set up TestBrain' : 'Create your account'}
+      description={
+        needsSetup
+          ? 'This first account administers the instance.'
+          : 'Sign up, then ask a project administrator to add you.'
+      }
+    >
       <Form method="post" className="space-y-4">
         {actionResult === undefined ? null : (
           <p
@@ -71,9 +79,18 @@ export function RegisterPage() {
         />
 
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Creating account…' : 'Create account'}
+          {isSubmitting ? 'Creating account…' : 'Sign up'}
         </Button>
       </Form>
+
+      {needsSetup ? null : (
+        <p className="mt-4 text-sm text-ink-muted">
+          Already have an account?{' '}
+          <Link to="/login" className="font-medium text-accent hover:underline">
+            Sign in
+          </Link>
+        </p>
+      )}
     </AuthLayout>
   );
 }

@@ -1,4 +1,4 @@
-import { Form, redirect, useActionData, useNavigation } from 'react-router';
+import { Form, Link, redirect, useActionData, useNavigation } from 'react-router';
 import type { ActionFunctionArgs } from 'react-router';
 import { Button } from '../../components/Button';
 import { TextField } from '../../components/TextField';
@@ -15,7 +15,7 @@ export async function loginPageLoader(): Promise<null> {
     throw redirect('/');
   }
 
-  // Nobody can sign in before the first account exists.
+  // A brand new instance has no account to sign in with yet.
   if ((await fetchSetupStatus()).needsSetup) {
     throw redirect('/register');
   }
@@ -69,6 +69,13 @@ export function LoginPage() {
           {isSubmitting ? 'Signing in…' : 'Sign in'}
         </Button>
       </Form>
+
+      <p className="mt-4 text-sm text-ink-muted">
+        New here?{' '}
+        <Link to="/register" className="font-medium text-accent hover:underline">
+          Sign up
+        </Link>
+      </p>
     </AuthLayout>
   );
 }

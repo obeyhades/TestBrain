@@ -87,7 +87,7 @@ describe('POST /api/auth/register', () => {
     expect(response.statusCode).toBe(400);
   });
 
-  it('refuses once the instance already has an owner', async () => {
+  it('lets a second person sign up, as an ordinary user', async () => {
     await register();
 
     const response = await app.inject({
@@ -96,7 +96,20 @@ describe('POST /api/auth/register', () => {
       payload: { ...OWNER, email: 'second@example.com' },
     });
 
-    expect(response.statusCode).toBe(403);
+    expect(response.statusCode).toBe(201);
+    expect(response.json().user.isInstanceAdmin).toBe(false);
+  });
+
+  it('answers 409 for an address that already has an account', async () => {
+    await register();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/auth/register',
+      payload: OWNER,
+    });
+
+    expect(response.statusCode).toBe(409);
   });
 });
 

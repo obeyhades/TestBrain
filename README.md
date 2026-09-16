@@ -198,9 +198,8 @@ Fill in `POSTGRES_PASSWORD` and `SESSION_SECRET`, then:
 docker compose up -d
 ```
 
-Open **http://localhost:3000**. The first visitor is asked to create the account
-that owns the instance; registration closes after that, and the owner creates
-accounts for everybody else.
+Open **http://localhost:3000**. The first account to sign up becomes the instance administrator. Anyone can sign
+up after that; the administrator can also create accounts for people directly.
 
 Migrations run when the API container starts, so there is nothing else to remember.
 
