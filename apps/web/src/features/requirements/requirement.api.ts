@@ -35,11 +35,16 @@ export async function fetchRequirement(
   return requirement;
 }
 
-export function createRequirement(
+export async function createRequirement(
   projectId: string,
   input: { title: string; description?: string; status: RequirementStatus },
-): Promise<unknown> {
-  return apiPost(`/projects/${projectId}/requirements`, input);
+): Promise<Requirement> {
+  const { requirement } = await apiPost<{ requirement: Requirement }>(
+    `/projects/${projectId}/requirements`,
+    input,
+  );
+
+  return requirement;
 }
 
 export function updateRequirement(

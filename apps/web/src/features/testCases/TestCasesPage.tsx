@@ -36,18 +36,20 @@ export async function testCasesAction({ params, request }: ActionFunctionArgs) {
   const formData = await request.formData();
 
   try {
-    // Steps are written on the test case's own page, where there is room for them.
-    await createTestCase(projectId, {
+    const testCase = await createTestCase(projectId, {
       title: String(formData.get('title') ?? ''),
       priority: String(formData.get('priority') ?? 'MEDIUM') as Priority,
       requirementId: null,
       steps: [],
     });
+
+    // Straight to the new test case, which is where the steps get written and
+    // where there is room for them. It also unmounts the dialog; redirecting back
+    // to this same list would leave it open, swallowing every click.
+    return redirect(`/projects/${projectId}/test-cases/${testCase.id}`);
   } catch (error) {
     return { error: toUserMessage(error, 'Could not create the test case. Try again.') };
   }
-
-  return redirect(`/projects/${projectId}/test-cases`);
 }
 
 export function TestCasesPage() {

@@ -24,7 +24,10 @@ export default defineConfig({
 
   webServer: [
     {
-      command: 'npm run dev -w @testbrain/api',
+      // serve, not dev: tsx watch restarts the API when a file changes, and a
+      // restart in the middle of a test shows up as "Failed to fetch". That made
+      // this suite flaky, which is worse than failing.
+      command: 'npm run serve -w @testbrain/api',
       port: 4000,
       reuseExistingServer: false,
       env: {

@@ -36,18 +36,19 @@ export async function requirementsAction({ params, request }: ActionFunctionArgs
   const description = String(formData.get('description') ?? '').trim();
 
   try {
-    await createRequirement(projectId, {
+    const requirement = await createRequirement(projectId, {
       title: String(formData.get('title') ?? ''),
       status: String(formData.get('status') ?? 'DRAFT') as RequirementStatus,
       ...(description === '' ? {} : { description }),
     });
+
+    // Going to the new requirement also unmounts the dialog. Redirecting back to
+    // this same list would not: React Router keeps the component, so isDialogOpen
+    // would stay true and the overlay would sit there swallowing clicks.
+    return redirect(`/projects/${projectId}/requirements/${requirement.id}`);
   } catch (error) {
     return { error: toUserMessage(error, 'Could not create the requirement. Try again.') };
   }
-
-  // Redirecting back to the same list closes the dialog by remounting the page,
-  // and picks up the new row on the way.
-  return redirect(`/projects/${projectId}/requirements`);
 }
 
 export function RequirementsPage() {

@@ -1,4 +1,4 @@
-import { createBrowserRouter, redirect } from 'react-router';
+import { createBrowserRouter, Navigate } from 'react-router';
 import { AppLayout } from './layouts/AppLayout';
 import {
   ReleaseDetailPage,
@@ -81,7 +81,7 @@ export const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        loader: () => redirect('/projects'),
+        element: <Navigate to="/projects" replace />,
       },
       {
         path: '/projects',

@@ -44,20 +44,16 @@ test('a failed test becomes a defect, and the defect holds back the release', as
     await page.getByLabel('Title').fill('User can log in');
     await page.getByRole('button', { name: 'Create requirement' }).click();
 
-    await expect(page.getByRole('link', { name: 'User can log in' })).toBeVisible();
+    // Creating something takes you to it.
+    await expect(page.getByLabel('Title')).toHaveValue('User can log in');
   });
 
-  await test.step('write a test case for it', async () => {
+  await test.step('write a test case, and give it a step', async () => {
     await page.getByRole('link', { name: 'Test cases' }).click();
     await page.getByRole('button', { name: 'New test case' }).click();
     await page.getByLabel('Title').fill('Login with valid credentials');
     await page.getByRole('button', { name: 'Create test case' }).click();
 
-    await expect(page.getByRole('link', { name: 'Login with valid credentials' })).toBeVisible();
-  });
-
-  await test.step('give the test case a step, linked to the requirement', async () => {
-    await page.getByRole('link', { name: 'Login with valid credentials' }).click();
     await page.getByLabel('Verifies requirement').selectOption({ label: 'User can log in' });
 
     await page.getByRole('button', { name: 'Add step' }).click();

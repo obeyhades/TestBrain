@@ -56,8 +56,16 @@ export async function fetchTestCase(
   return testCase;
 }
 
-export function createTestCase(projectId: string, input: TestCaseInput): Promise<unknown> {
-  return apiPost(`/projects/${projectId}/test-cases`, input);
+export async function createTestCase(
+  projectId: string,
+  input: TestCaseInput,
+): Promise<TestCaseDetail> {
+  const { testCase } = await apiPost<{ testCase: TestCaseDetail }>(
+    `/projects/${projectId}/test-cases`,
+    input,
+  );
+
+  return testCase;
 }
 
 export function updateTestCase(
