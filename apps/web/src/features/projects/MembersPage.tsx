@@ -72,61 +72,63 @@ export function MembersPage() {
         </p>
       )}
 
-      <table className="w-full border-separate border-spacing-0 text-sm">
-        <caption className="sr-only">People in this project</caption>
-        <thead>
-          <tr className="text-left text-ink-muted">
-            <th scope="col" className="pb-2 font-medium">
-              Name
-            </th>
-            <th scope="col" className="pb-2 font-medium">
-              Email
-            </th>
-            <th scope="col" className="pb-2 font-medium">
-              Role
-            </th>
-            <th scope="col" className="pb-2">
-              <span className="sr-only">Actions</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {members.map((member) => (
-            <tr key={member.userId} className="border-t border-border">
-              <td className="py-2 font-medium">{member.name}</td>
-              <td className="py-2 text-ink-muted">{member.email}</td>
-              <td className="py-2">
-                <Form method="post">
-                  <input type="hidden" name="intent" value="changeRole" />
-                  <input type="hidden" name="userId" value={member.userId} />
-                  <select
-                    name="role"
-                    defaultValue={member.role}
-                    aria-label={`Role for ${member.name}`}
-                    onChange={(event) => event.currentTarget.form?.requestSubmit()}
-                    className="h-8 rounded-md border border-border bg-surface px-2 text-sm"
-                  >
-                    {ROLES.map((role) => (
-                      <option key={role} value={role}>
-                        {PROJECT_ROLE_LABELS[role]}
-                      </option>
-                    ))}
-                  </select>
-                </Form>
-              </td>
-              <td className="py-2 text-right">
-                <Form method="post">
-                  <input type="hidden" name="intent" value="remove" />
-                  <input type="hidden" name="userId" value={member.userId} />
-                  <Button type="submit" variant="secondary" disabled={isBusy}>
-                    Remove
-                  </Button>
-                </Form>
-              </td>
+      <div className="overflow-x-auto">
+        <table className="w-full border-separate border-spacing-0 text-sm">
+          <caption className="sr-only">People in this project</caption>
+          <thead>
+            <tr className="text-left text-ink-muted">
+              <th scope="col" className="pb-2 font-medium">
+                Name
+              </th>
+              <th scope="col" className="pb-2 font-medium">
+                Email
+              </th>
+              <th scope="col" className="pb-2 font-medium">
+                Role
+              </th>
+              <th scope="col" className="pb-2">
+                <span className="sr-only">Actions</span>
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {members.map((member) => (
+              <tr key={member.userId} className="border-t border-border">
+                <td className="py-2 font-medium">{member.name}</td>
+                <td className="py-2 text-ink-muted">{member.email}</td>
+                <td className="py-2">
+                  <Form method="post">
+                    <input type="hidden" name="intent" value="changeRole" />
+                    <input type="hidden" name="userId" value={member.userId} />
+                    <select
+                      name="role"
+                      defaultValue={member.role}
+                      aria-label={`Role for ${member.name}`}
+                      onChange={(event) => event.currentTarget.form?.requestSubmit()}
+                      className="h-8 rounded-md border border-border bg-surface px-2 text-sm"
+                    >
+                      {ROLES.map((role) => (
+                        <option key={role} value={role}>
+                          {PROJECT_ROLE_LABELS[role]}
+                        </option>
+                      ))}
+                    </select>
+                  </Form>
+                </td>
+                <td className="py-2 text-right">
+                  <Form method="post">
+                    <input type="hidden" name="intent" value="remove" />
+                    <input type="hidden" name="userId" value={member.userId} />
+                    <Button type="submit" variant="secondary" disabled={isBusy}>
+                      Remove
+                    </Button>
+                  </Form>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <Form method="post" className="max-w-md space-y-3 rounded-lg border border-border p-4">
         <h2 className="text-sm font-semibold">Add a member</h2>

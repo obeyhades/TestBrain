@@ -70,42 +70,44 @@ export function TestCasesPage() {
           No test cases yet. A test case describes how something is checked, step by step.
         </p>
       ) : (
-        <table className="mt-4 w-full text-sm">
-          <caption className="sr-only">Test cases in this project</caption>
-          <thead>
-            <tr className="text-left text-ink-muted">
-              <th scope="col" className="pb-2 font-medium">
-                Title
-              </th>
-              <th scope="col" className="pb-2 font-medium">
-                Priority
-              </th>
-              <th scope="col" className="pb-2 font-medium">
-                Requirement
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {testCases.map((testCase) => (
-              <tr key={testCase.id} className="border-t border-border">
-                <td className="py-2">
-                  <Link to={testCase.id} className="font-medium hover:underline">
-                    {testCase.title}
-                  </Link>
-                </td>
-                <td className="py-2">
-                  <StatusBadge
-                    label={PRIORITY_LABELS[testCase.priority]}
-                    tone={PRIORITY_TONES[testCase.priority]}
-                  />
-                </td>
-                <td className="py-2 text-ink-muted">
-                  {testCase.requirement === null ? '—' : testCase.requirement.title}
-                </td>
+        <div className="overflow-x-auto mt-4">
+          <table className="w-full text-sm">
+            <caption className="sr-only">Test cases in this project</caption>
+            <thead>
+              <tr className="text-left text-ink-muted">
+                <th scope="col" className="pb-2 font-medium">
+                  Title
+                </th>
+                <th scope="col" className="pb-2 font-medium">
+                  Priority
+                </th>
+                <th scope="col" className="pb-2 font-medium">
+                  Requirement
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {testCases.map((testCase) => (
+                <tr key={testCase.id} className="border-t border-border">
+                  <td className="py-2">
+                    <Link to={testCase.id} className="font-medium hover:underline">
+                      {testCase.title}
+                    </Link>
+                  </td>
+                  <td className="py-2">
+                    <StatusBadge
+                      label={PRIORITY_LABELS[testCase.priority]}
+                      tone={PRIORITY_TONES[testCase.priority]}
+                    />
+                  </td>
+                  <td className="py-2 text-ink-muted">
+                    {testCase.requirement === null ? '—' : testCase.requirement.title}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <ModalOverlay

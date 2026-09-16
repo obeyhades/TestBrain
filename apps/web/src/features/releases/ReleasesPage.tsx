@@ -52,47 +52,49 @@ export function ReleasesPage() {
           No releases yet. A release collects the test runs that decide whether a version ships.
         </p>
       ) : (
-        <table className="mt-4 w-full text-sm">
-          <caption className="sr-only">Releases in this project</caption>
-          <thead>
-            <tr className="text-left text-ink-muted">
-              <th scope="col" className="pb-2 font-medium">
-                Release
-              </th>
-              <th scope="col" className="pb-2 font-medium">
-                Status
-              </th>
-              <th scope="col" className="pb-2 font-medium">
-                Tests
-              </th>
-              <th scope="col" className="pb-2 font-medium">
-                Ready
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {releases.map((release) => (
-              <tr key={release.id} className="border-t border-border">
-                <td className="py-2">
-                  <Link to={release.id} className="font-medium hover:underline">
-                    {release.name}
-                  </Link>
-                  <span className="mt-0.5 block text-xs text-ink-muted">{release.version}</span>
-                </td>
-                <td className="py-2">{RELEASE_STATUS_LABELS[release.status]}</td>
-                <td className="py-2 text-ink-muted">
-                  {release.quality.summary.passed} / {release.quality.summary.total} passed
-                </td>
-                <td className="py-2">
-                  <StatusBadge
-                    label={release.quality.readiness === 'READY' ? 'Ready' : 'Not ready'}
-                    tone={release.quality.readiness === 'READY' ? 'done' : 'progress'}
-                  />
-                </td>
+        <div className="overflow-x-auto mt-4">
+          <table className="w-full text-sm">
+            <caption className="sr-only">Releases in this project</caption>
+            <thead>
+              <tr className="text-left text-ink-muted">
+                <th scope="col" className="pb-2 font-medium">
+                  Release
+                </th>
+                <th scope="col" className="pb-2 font-medium">
+                  Status
+                </th>
+                <th scope="col" className="pb-2 font-medium">
+                  Tests
+                </th>
+                <th scope="col" className="pb-2 font-medium">
+                  Ready
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {releases.map((release) => (
+                <tr key={release.id} className="border-t border-border">
+                  <td className="py-2">
+                    <Link to={release.id} className="font-medium hover:underline">
+                      {release.name}
+                    </Link>
+                    <span className="mt-0.5 block text-xs text-ink-muted">{release.version}</span>
+                  </td>
+                  <td className="py-2">{RELEASE_STATUS_LABELS[release.status]}</td>
+                  <td className="py-2 text-ink-muted">
+                    {release.quality.summary.passed} / {release.quality.summary.total} passed
+                  </td>
+                  <td className="py-2">
+                    <StatusBadge
+                      label={release.quality.readiness === 'READY' ? 'Ready' : 'Not ready'}
+                      tone={release.quality.readiness === 'READY' ? 'done' : 'progress'}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <ModalOverlay

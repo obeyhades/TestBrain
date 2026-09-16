@@ -8,7 +8,7 @@ export function AppLayout() {
   return (
     <div className="min-h-screen">
       <header className="border-b border-border bg-surface">
-        <div className="mx-auto flex h-12 max-w-5xl items-center justify-between px-4">
+        <div className="mx-auto flex min-h-12 max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-1.5">
           <div className="flex items-center gap-5">
             <Link to="/projects" className="text-sm font-semibold tracking-tight">
               TestBrain
@@ -38,7 +38,7 @@ export function AppLayout() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-sm text-ink-muted">{user.name}</span>
+            <span className="hidden text-sm text-ink-muted sm:inline">{user.name}</span>
 
             <Form method="post" action="/logout">
               <Button type="submit" variant="secondary">

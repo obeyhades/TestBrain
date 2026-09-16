@@ -128,89 +128,91 @@ export function TestRunDetailPage() {
           No test cases in this run yet. Add some below.
         </p>
       ) : (
-        <table className="w-full text-sm">
-          <caption className="sr-only">Test cases in this run</caption>
-          <thead>
-            <tr className="text-left text-ink-muted">
-              <th scope="col" className="pb-2 font-medium">
-                Test case
-              </th>
-              <th scope="col" className="pb-2 font-medium">
-                Result
-              </th>
-              <th scope="col" className="pb-2">
-                <span className="sr-only">Actions</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {testRun.results.map((result) => (
-              <tr key={result.testCaseId} className="border-t border-border align-top">
-                <td className="py-2">
-                  <span className="font-medium">{result.title}</span>
-                  {result.executedBy === null ? null : (
-                    <span className="mt-0.5 block text-xs text-ink-muted">
-                      {RESULT_STATUS_LABELS[result.status]} by {result.executedBy}
-                    </span>
-                  )}
-                </td>
-
-                <td className="py-2">
-                  <Form method="post" className="flex gap-1">
-                    <input type="hidden" name="intent" value="record" />
-                    <input type="hidden" name="testCaseId" value={result.testCaseId} />
-
-                    {RECORDABLE.map((status) => (
-                      <button
-                        key={status}
-                        type="submit"
-                        name="status"
-                        value={status}
-                        disabled={isBusy}
-                        aria-pressed={result.status === status}
-                        className={`h-7 rounded border px-2 text-xs font-medium ${
-                          result.status === status
-                            ? 'border-ink bg-ink text-white'
-                            : 'border-border bg-surface hover:bg-canvas'
-                        }`}
-                      >
-                        {RESULT_STATUS_LABELS[status]}
-                      </button>
-                    ))}
-                  </Form>
-                </td>
-
-                <td className="py-2 text-right">
-                  {/* A failed test is the usual way a defect gets reported, so the
-                      link carries the test and the run along with it. */}
-                  {result.status === 'FAILED' ? (
-                    <Link
-                      to={{
-                        pathname: `/projects/${projectId}/defects/new`,
-                        search: new URLSearchParams({
-                          title: result.title,
-                          testCaseId: result.testCaseId,
-                          testRunId: testRun.id,
-                        }).toString(),
-                      }}
-                      className="mr-2 text-xs font-medium text-accent hover:underline"
-                    >
-                      Report defect
-                    </Link>
-                  ) : null}
-
-                  <Form method="post" className="inline-block">
-                    <input type="hidden" name="intent" value="remove" />
-                    <input type="hidden" name="testCaseId" value={result.testCaseId} />
-                    <Button type="submit" variant="secondary" disabled={isBusy}>
-                      Remove
-                    </Button>
-                  </Form>
-                </td>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <caption className="sr-only">Test cases in this run</caption>
+            <thead>
+              <tr className="text-left text-ink-muted">
+                <th scope="col" className="pb-2 font-medium">
+                  Test case
+                </th>
+                <th scope="col" className="pb-2 font-medium">
+                  Result
+                </th>
+                <th scope="col" className="pb-2">
+                  <span className="sr-only">Actions</span>
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {testRun.results.map((result) => (
+                <tr key={result.testCaseId} className="border-t border-border align-top">
+                  <td className="py-2">
+                    <span className="font-medium">{result.title}</span>
+                    {result.executedBy === null ? null : (
+                      <span className="mt-0.5 block text-xs text-ink-muted">
+                        {RESULT_STATUS_LABELS[result.status]} by {result.executedBy}
+                      </span>
+                    )}
+                  </td>
+
+                  <td className="py-2">
+                    <Form method="post" className="flex gap-1">
+                      <input type="hidden" name="intent" value="record" />
+                      <input type="hidden" name="testCaseId" value={result.testCaseId} />
+
+                      {RECORDABLE.map((status) => (
+                        <button
+                          key={status}
+                          type="submit"
+                          name="status"
+                          value={status}
+                          disabled={isBusy}
+                          aria-pressed={result.status === status}
+                          className={`h-7 rounded border px-2 text-xs font-medium ${
+                            result.status === status
+                              ? 'border-ink bg-ink text-white'
+                              : 'border-border bg-surface hover:bg-canvas'
+                          }`}
+                        >
+                          {RESULT_STATUS_LABELS[status]}
+                        </button>
+                      ))}
+                    </Form>
+                  </td>
+
+                  <td className="py-2 text-right">
+                    {/* A failed test is the usual way a defect gets reported, so the
+                      link carries the test and the run along with it. */}
+                    {result.status === 'FAILED' ? (
+                      <Link
+                        to={{
+                          pathname: `/projects/${projectId}/defects/new`,
+                          search: new URLSearchParams({
+                            title: result.title,
+                            testCaseId: result.testCaseId,
+                            testRunId: testRun.id,
+                          }).toString(),
+                        }}
+                        className="mr-2 text-xs font-medium text-accent hover:underline"
+                      >
+                        Report defect
+                      </Link>
+                    ) : null}
+
+                    <Form method="post" className="inline-block">
+                      <input type="hidden" name="intent" value="remove" />
+                      <input type="hidden" name="testCaseId" value={result.testCaseId} />
+                      <Button type="submit" variant="secondary" disabled={isBusy}>
+                        Remove
+                      </Button>
+                    </Form>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <Form

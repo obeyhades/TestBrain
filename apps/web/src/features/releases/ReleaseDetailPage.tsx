@@ -78,31 +78,33 @@ export function ReleaseDetailPage() {
         <div>
           <h3 className="text-sm font-semibold">Defects found in this release</h3>
 
-          <table className="mt-2 w-full text-sm">
-            <caption className="sr-only">Defects reported against this release</caption>
-            <thead>
-              <tr className="text-left text-ink-muted">
-                <th scope="col" className="pb-2 font-medium">
-                  Title
-                </th>
-                <th scope="col" className="pb-2 font-medium">
-                  Severity
-                </th>
-                <th scope="col" className="pb-2 font-medium">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {release.defects.map((defect) => (
-                <tr key={defect.id} className="border-t border-border">
-                  <td className="py-2">{defect.title}</td>
-                  <td className="py-2">{SEVERITY_LABELS[defect.severity]}</td>
-                  <td className="py-2 text-ink-muted">{DEFECT_STATUS_LABELS[defect.status]}</td>
+          <div className="overflow-x-auto mt-2">
+            <table className="w-full text-sm">
+              <caption className="sr-only">Defects reported against this release</caption>
+              <thead>
+                <tr className="text-left text-ink-muted">
+                  <th scope="col" className="pb-2 font-medium">
+                    Title
+                  </th>
+                  <th scope="col" className="pb-2 font-medium">
+                    Severity
+                  </th>
+                  <th scope="col" className="pb-2 font-medium">
+                    Status
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {release.defects.map((defect) => (
+                  <tr key={defect.id} className="border-t border-border">
+                    <td className="py-2">{defect.title}</td>
+                    <td className="py-2">{SEVERITY_LABELS[defect.severity]}</td>
+                    <td className="py-2 text-ink-muted">{DEFECT_STATUS_LABELS[defect.status]}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 

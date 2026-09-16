@@ -42,49 +42,51 @@ export function DefectsPage() {
           No defects reported. They usually arrive from a failed test.
         </p>
       ) : (
-        <table className="mt-4 w-full text-sm">
-          <caption className="sr-only">Defects in this project</caption>
-          <thead>
-            <tr className="text-left text-ink-muted">
-              <th scope="col" className="pb-2 font-medium">
-                Title
-              </th>
-              <th scope="col" className="pb-2 font-medium">
-                Severity
-              </th>
-              <th scope="col" className="pb-2 font-medium">
-                Status
-              </th>
-              <th scope="col" className="pb-2 font-medium">
-                Assigned to
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {defects.map((defect) => (
-              <tr key={defect.id} className="border-t border-border">
-                <td className="py-2">
-                  <Link to={defect.id} className="font-medium hover:underline">
-                    {defect.title}
-                  </Link>
-                  {defect.testCase === null ? null : (
-                    <span className="mt-0.5 block text-xs text-ink-muted">
-                      From {defect.testCase.title}
-                    </span>
-                  )}
-                </td>
-                <td className="py-2">{SEVERITY_LABELS[defect.severity]}</td>
-                <td className="py-2">
-                  <StatusBadge
-                    label={DEFECT_STATUS_LABELS[defect.status]}
-                    tone={STATUS_TONES[defect.status]}
-                  />
-                </td>
-                <td className="py-2 text-ink-muted">{defect.assignedTo?.name ?? '—'}</td>
+        <div className="overflow-x-auto mt-4">
+          <table className="w-full text-sm">
+            <caption className="sr-only">Defects in this project</caption>
+            <thead>
+              <tr className="text-left text-ink-muted">
+                <th scope="col" className="pb-2 font-medium">
+                  Title
+                </th>
+                <th scope="col" className="pb-2 font-medium">
+                  Severity
+                </th>
+                <th scope="col" className="pb-2 font-medium">
+                  Status
+                </th>
+                <th scope="col" className="pb-2 font-medium">
+                  Assigned to
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {defects.map((defect) => (
+                <tr key={defect.id} className="border-t border-border">
+                  <td className="py-2">
+                    <Link to={defect.id} className="font-medium hover:underline">
+                      {defect.title}
+                    </Link>
+                    {defect.testCase === null ? null : (
+                      <span className="mt-0.5 block text-xs text-ink-muted">
+                        From {defect.testCase.title}
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-2">{SEVERITY_LABELS[defect.severity]}</td>
+                  <td className="py-2">
+                    <StatusBadge
+                      label={DEFECT_STATUS_LABELS[defect.status]}
+                      tone={STATUS_TONES[defect.status]}
+                    />
+                  </td>
+                  <td className="py-2 text-ink-muted">{defect.assignedTo?.name ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </section>
   );

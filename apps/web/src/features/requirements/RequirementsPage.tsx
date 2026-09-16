@@ -70,39 +70,41 @@ export function RequirementsPage() {
           test cases.
         </p>
       ) : (
-        <table className="mt-4 w-full text-sm">
-          <caption className="sr-only">Requirements in this project</caption>
-          <thead>
-            <tr className="text-left text-ink-muted">
-              <th scope="col" className="pb-2 font-medium">
-                Title
-              </th>
-              <th scope="col" className="pb-2 font-medium">
-                Status
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {requirements.map((requirement) => (
-              <tr key={requirement.id} className="border-t border-border">
-                <td className="py-2">
-                  <Link
-                    to={requirement.id}
-                    className="font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-                  >
-                    {requirement.title}
-                  </Link>
-                </td>
-                <td className="py-2">
-                  <StatusBadge
-                    label={REQUIREMENT_STATUS_LABELS[requirement.status]}
-                    tone={STATUS_TONES[requirement.status]}
-                  />
-                </td>
+        <div className="overflow-x-auto mt-4">
+          <table className="w-full text-sm">
+            <caption className="sr-only">Requirements in this project</caption>
+            <thead>
+              <tr className="text-left text-ink-muted">
+                <th scope="col" className="pb-2 font-medium">
+                  Title
+                </th>
+                <th scope="col" className="pb-2 font-medium">
+                  Status
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {requirements.map((requirement) => (
+                <tr key={requirement.id} className="border-t border-border">
+                  <td className="py-2">
+                    <Link
+                      to={requirement.id}
+                      className="font-medium hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+                    >
+                      {requirement.title}
+                    </Link>
+                  </td>
+                  <td className="py-2">
+                    <StatusBadge
+                      label={REQUIREMENT_STATUS_LABELS[requirement.status]}
+                      tone={STATUS_TONES[requirement.status]}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       <ModalOverlay

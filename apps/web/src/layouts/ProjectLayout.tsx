@@ -31,14 +31,17 @@ export function ProjectLayout() {
         <p className="mt-1 text-sm text-ink-muted">{project.description}</p>
       )}
 
-      <nav aria-label="Project sections" className="mt-4 flex gap-4 border-b border-border">
+      <nav
+        aria-label="Project sections"
+        className="mt-4 flex gap-4 overflow-x-auto border-b border-border"
+      >
         {SECTIONS.map((section) => (
           <NavLink
             key={section.label}
             to={section.to}
             end={section.end}
             className={({ isActive }) =>
-              `-mb-px border-b-2 px-1 pb-2 text-sm ${
+              `shrink-0 whitespace-nowrap border-b-2 px-1 pb-2 text-sm ${
                 isActive
                   ? 'border-accent font-medium text-ink'
                   : 'border-transparent text-ink-muted hover:text-ink'
