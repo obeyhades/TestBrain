@@ -43,6 +43,12 @@ describe('ReleaseReadiness', () => {
     expect(screen.getByText('3 tests have not been run yet.')).toBeInTheDocument();
   });
 
+  it('says it in the singular for exactly one', () => {
+    render(<ReleaseReadiness quality={quality({ notExecuted: 1 })} />);
+
+    expect(screen.getByText('1 test has not been run yet.')).toBeInTheDocument();
+  });
+
   it('says nothing about unfinished testing when everything has been run', () => {
     render(<ReleaseReadiness quality={quality()} />);
 

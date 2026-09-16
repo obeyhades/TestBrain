@@ -29,7 +29,9 @@ export function ReleaseReadiness({ quality }: { quality: ReleaseQuality }) {
 
       {quality.notExecuted === 0 ? null : (
         <p className="mt-2 text-sm text-ink-muted">
-          {quality.notExecuted} test{quality.notExecuted === 1 ? '' : 's'} have not been run yet.
+          {quality.notExecuted === 1
+            ? '1 test has not been run yet.'
+            : `${quality.notExecuted} tests have not been run yet.`}
         </p>
       )}
     </div>

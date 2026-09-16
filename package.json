@@ -20,7 +20,8 @@
     "format:check": "prettier --check .",
     "db:up": "docker compose -f docker-compose.dev.yml up -d",
     "db:down": "docker compose -f docker-compose.dev.yml down",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "screenshots": "tsx scripts/takeScreenshots.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

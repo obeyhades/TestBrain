@@ -62,7 +62,36 @@ Requirement → Test Case → Test Run → Defect → Release
 
 ## Screenshots
 
-_To be added._
+**A test run in progress.** Blocked tests are left out of the pass rate, so three
+passed out of four actually executed reads as 75%, not 60%.
+
+![A test run showing three passed, one failed and one blocked test](docs/screenshots/test-run.png)
+
+**A release that cannot ship yet**, and the two reasons why.
+
+![A release marked not ready, listing an unresolved critical defect and a failing test](docs/screenshots/release.png)
+
+**A test case and its steps.** Each step is an action and an expected result, and
+the order on screen is the order that gets saved.
+
+![A test case with three ordered steps, each with an action and an expected result](docs/screenshots/test-case.png)
+
+<details>
+<summary>More</summary>
+
+![The project list](docs/screenshots/projects.png)
+
+![The test case list, showing priority and the requirement each one verifies](docs/screenshots/test-cases.png)
+
+</details>
+
+These are generated rather than collected by hand, so they can be refreshed after a
+change instead of quietly going stale:
+
+```bash
+npm run dev          # in one terminal
+npm run screenshots  # in another
+```
 
 ## Architecture
 
