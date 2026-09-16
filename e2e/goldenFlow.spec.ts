@@ -22,7 +22,7 @@ async function registerOwner(page: Page) {
   await page.getByLabel('Name').fill(OWNER.name);
   await page.getByLabel('Email').fill(OWNER.email);
   await page.getByLabel('Password').fill(OWNER.password);
-  await page.getByRole('button', { name: 'Create account' }).click();
+  await page.getByRole('button', { name: 'Sign up' }).click();
 
   await expect(page.getByRole('heading', { name: 'Projects' })).toBeVisible();
 }
