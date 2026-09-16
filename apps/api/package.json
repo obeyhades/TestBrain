@@ -26,6 +26,7 @@
     "@node-rs/argon2": "^2.2.1",
     "@prisma/adapter-pg": "^7.10.0",
     "@prisma/client": "7.10.0",
+    "fast-xml-parser": "^5.11.1",
     "fastify": "^5.12.4",
     "zod": "^4.6.5"
   }

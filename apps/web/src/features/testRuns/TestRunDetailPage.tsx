@@ -7,10 +7,12 @@ import { TestRunSummaryBar } from './TestRunSummaryBar';
 import {
   addTestCasesToRun,
   fetchTestRun,
+  importTestResults,
   recordTestResult,
   removeTestCaseFromRun,
   RESULT_STATUS_LABELS,
   setTestRunCompleted,
+  type ImportSummary,
   type TestResultStatus,
   type TestRunDetail,
 } from './testRun.api';
@@ -22,6 +24,7 @@ type LoaderData = {
 
 type ActionResult = {
   error?: string;
+  imported?: ImportSummary;
 };
 
 const RECORDABLE: TestResultStatus[] = ['PASSED', 'FAILED', 'BLOCKED'];
@@ -63,6 +66,16 @@ export async function testRunAction({ params, request }: ActionFunctionArgs) {
       await removeTestCaseFromRun(projectId, testRunId, String(formData.get('testCaseId') ?? ''));
     } else if (intent === 'complete' || intent === 'reopen') {
       await setTestRunCompleted(projectId, testRunId, intent === 'complete');
+    } else if (intent === 'import') {
+      const file = formData.get('report');
+
+      if (!(file instanceof File) || file.size === 0) {
+        return { error: 'Choose a JUnit XML file first.' };
+      }
+
+      // The file is read here, in the browser, and sent as text. The API never
+      // has to deal with a multipart upload.
+      return { imported: await importTestResults(projectId, testRunId, await file.text()) };
     }
   } catch (error) {
     return { error: toUserMessage(error, 'Could not update the test run.') };
@@ -199,6 +212,54 @@ export function TestRunDetailPage() {
           </tbody>
         </table>
       )}
+
+      <Form
+        method="post"
+        encType="multipart/form-data"
+        className="max-w-md rounded-lg border border-border p-4"
+      >
+        <h3 className="text-sm font-semibold">Import results</h3>
+        <p className="mt-1 text-sm text-ink-muted">
+          A JUnit XML report from Playwright, Jest, pytest or similar. Each test is matched to a
+          test case by its exact title.
+        </p>
+
+        <input type="hidden" name="intent" value="import" />
+
+        {actionResult?.imported === undefined ? null : (
+          <p
+            role="status"
+            className="mt-3 rounded-md border border-border bg-canvas px-3 py-2 text-sm"
+          >
+            Recorded {actionResult.imported.recorded} result
+            {actionResult.imported.recorded === 1 ? '' : 's'}
+            {actionResult.imported.addedToRun > 0
+              ? `, adding ${actionResult.imported.addedToRun} to the run`
+              : ''}
+            .
+            {actionResult.imported.unmatched.length === 0
+              ? ''
+              : ` No test case is called: ${actionResult.imported.unmatched.join(', ')}.`}
+          </p>
+        )}
+
+        <label className="mt-3 block text-sm">
+          <span className="sr-only">JUnit XML report</span>
+          <input
+            type="file"
+            name="report"
+            accept=".xml,text/xml,application/xml"
+            required
+            className="block w-full text-sm text-ink-muted file:mr-3 file:rounded-md file:border file:border-border file:bg-surface file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-ink"
+          />
+        </label>
+
+        <div className="mt-3">
+          <Button type="submit" disabled={isBusy}>
+            Import
+          </Button>
+        </div>
+      </Form>
 
       {availableTestCases.length === 0 ? null : (
         <Form method="post" className="max-w-md rounded-lg border border-border p-4">

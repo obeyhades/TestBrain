@@ -46,6 +46,12 @@ Failed or Blocked. A summary updates as you go, and blocked tests are left out o
 the pass rate — a run where one test passed and the rest are blocked is at 100% of
 what could actually be checked.
 
+**Automated results.** A test run can also be filled in from a JUnit XML report,
+the format Playwright, Jest, pytest and most other runners write. Each test is
+matched to a test case by its exact title; names that match nothing are reported
+back rather than dropped. Results imported this way look exactly like results a
+person recorded, so the summary and the release decision treat them the same.
+
 **Defects.** A failed test carries a "Report defect" link that brings the test case
 and the run along with it. Defects are closed rather than deleted, so the history
 stays honest.
@@ -286,7 +292,6 @@ can have. Building them before the core worked would have been the wrong order.
 - Snapshot test case content into a test run, so editing a case later does not
   rewrite the history of past runs. This is the most significant known limitation.
 - Many-to-many links between requirements and test cases.
-- Import automated test results (JUnit XML).
 - Attach screenshots and logs to defects.
 - Human-readable keys per project (`TC-12`, `BUG-4`).
 - A smaller API image: it currently ships its build dependencies so that migrations

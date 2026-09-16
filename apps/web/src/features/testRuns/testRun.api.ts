@@ -114,3 +114,23 @@ export function setTestRunCompleted(
     completed,
   });
 }
+
+export type ImportSummary = {
+  recorded: number;
+  addedToRun: number;
+  unmatched: string[];
+};
+
+/** Sends a JUnit XML report as text; the API matches it to test cases by title. */
+export async function importTestResults(
+  projectId: string,
+  testRunId: string,
+  report: string,
+): Promise<ImportSummary> {
+  const response = await apiPost<{ import: ImportSummary }>(
+    `/projects/${projectId}/test-runs/${testRunId}/import`,
+    { report },
+  );
+
+  return response.import;
+}

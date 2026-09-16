@@ -49,15 +49,6 @@ import {
   createUserLoader,
 } from './features/users/CreateUserPage';
 
-/**
- * The whole route tree in one readable place.
- *
- * A route declares which component renders, which loader fetches its data before
- * that component is shown, and which action handles its form submissions.
- *
- * Everything below the layout route is behind requireUser, so a new signed-in page
- * is added as a child and is protected without any further work.
- */
 export const router = createBrowserRouter([
   {
     path: '/login',

@@ -96,3 +96,11 @@ export function updateResult(
 export function removeResult(prisma: PrismaClient, testRunId: string, testCaseId: string) {
   return prisma.testResult.deleteMany({ where: { testRunId, testCaseId } });
 }
+
+/** Every test case in the project, by title, for matching an imported report. */
+export function findTestCaseTitlesInProject(prisma: PrismaClient, projectId: string) {
+  return prisma.testCase.findMany({
+    where: { projectId },
+    select: { id: true, title: true },
+  });
+}

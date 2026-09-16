@@ -5,6 +5,7 @@ import {
   completeTestRunController,
   createTestRunController,
   getTestRunController,
+  importResultsController,
   listTestRunsController,
   recordResultController,
   removeTestCaseController,
@@ -31,6 +32,10 @@ export function testRunRoutes(deps: TestRunDependencies): FastifyPluginAsync {
 
     app.post(`${base}/:testRunId/test-cases`, (request, reply) =>
       addTestCasesController(deps, request, reply),
+    );
+
+    app.post(`${base}/:testRunId/import`, (request, reply) =>
+      importResultsController(deps, request, reply),
     );
 
     app.put(`${base}/:testRunId/results/:testCaseId`, (request, reply) =>

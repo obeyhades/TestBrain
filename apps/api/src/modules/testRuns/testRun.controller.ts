@@ -2,11 +2,17 @@ import type { FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import type { PrismaClient } from '../../database/prisma.js';
 import { getAuthenticatedUser } from '../../middleware/requireAuth.js';
-import { addTestCasesSchema, createTestRunSchema, recordResultSchema } from './testRun.schema.js';
+import {
+  addTestCasesSchema,
+  createTestRunSchema,
+  importReportSchema,
+  recordResultSchema,
+} from './testRun.schema.js';
 import {
   addTestCasesToRun,
   createTestRun,
   getTestRun,
+  importTestResults,
   listTestRuns,
   recordTestResult,
   removeTestCaseFromRun,
@@ -98,6 +104,20 @@ export async function removeTestCaseController(
   await removeTestCaseFromRun(deps.prisma, user, projectId, testRunId, testCaseId);
 
   return reply.status(204).send();
+}
+
+export async function importResultsController(
+  deps: TestRunDependencies,
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const user = getAuthenticatedUser(request);
+  const { projectId, testRunId } = runParams.parse(request.params);
+  const input = importReportSchema.parse(request.body);
+
+  return reply
+    .status(200)
+    .send({ import: await importTestResults(deps.prisma, user, projectId, testRunId, input) });
 }
 
 export async function completeTestRunController(
