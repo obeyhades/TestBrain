@@ -2,7 +2,8 @@ import type { Priority, TestResultStatus, TestRunStatus } from '../../generated/
 import type { PrismaClient } from '../../database/prisma.js';
 import { ForbiddenError, NotFoundError, ValidationError } from '../../shared/errors.js';
 import type { AuthenticatedUser } from '../auth/auth.service.js';
-import { canRunTests } from '../projects/permissions.js';
+import { canEditTestCases, canRunTests } from '../projects/permissions.js';
+import * as testCaseRepository from '../testCases/testCase.repository.js';
 import { requireProjectRole } from '../projects/project.service.js';
 import * as testRunRepository from './testRun.repository.js';
 import { JUnitReportError, parseJUnitReport, type ParsedTestResult } from './junitReport.js';
@@ -210,18 +211,18 @@ export type ImportSummary = {
   recorded: number;
   /** Test cases the report mentioned that were not in the run yet, and now are. */
   addedToRun: number;
-  /** Names in the report that match no test case in this project. */
-  unmatched: string[];
+  /** Test cases that did not exist before this import and were created from it. */
+  created: string[];
 };
 
 /**
  * Fills a run in from a JUnit XML report instead of by hand.
  *
- * A test in the report is matched to a test case by its exact title. That is
- * deliberately simple: name the automated test the same as the test case it
- * covers, and the two line up. Names that match nothing are reported back rather
- * than dropped, so a typo in one place shows up instead of silently losing a
- * result.
+ * A test in the report is matched to a test case by its exact title. A name with
+ * no test case yet gets one created, so a project's catalogue can be built from
+ * the report itself rather than typed in first and kept in step by hand. The
+ * created ones are listed in the summary, so a misspelt name shows up as an
+ * unexpected new test case instead of silently going missing.
  *
  * Results written this way look exactly like results recorded by a person. The
  * summary, the release readiness and everything else treat them the same.
@@ -233,7 +234,15 @@ export async function importTestResults(
   testRunId: string,
   input: ImportReportInput,
 ): Promise<ImportSummary> {
-  await requireRunAccess(prisma, user, projectId);
+  // Two permissions, because this both records results and creates test cases.
+  // The same roles hold both today; checking both keeps that a fact rather than
+  // an assumption.
+  const role = await requireProjectRole(prisma, projectId, user.id);
+
+  if (!canRunTests(role) || !canEditTestCases(role)) {
+    throw new ForbiddenError('You do not have permission to import results');
+  }
+
   await requireTestRun(prisma, projectId, testRunId);
 
   let parsed;
@@ -252,16 +261,35 @@ export async function importTestResults(
   const idByTitle = new Map(testCases.map((testCase) => [testCase.title, testCase.id]));
 
   const matched: { testCaseId: string; result: ParsedTestResult }[] = [];
-  const unmatched: string[] = [];
+  const created: string[] = [];
 
   for (const result of parsed) {
-    const testCaseId = idByTitle.get(result.name);
+    // A <testcase> without a name is malformed and cannot be matched to anything.
+    if (result.name === '') {
+      continue;
+    }
+
+    let testCaseId = idByTitle.get(result.name);
 
     if (testCaseId === undefined) {
-      unmatched.push(result.name);
-    } else {
-      matched.push({ testCaseId, result });
+      const testCase = await testCaseRepository.createTestCaseWithSteps(prisma, {
+        projectId,
+        createdById: user.id,
+        title: result.name,
+        description: null,
+        preconditions: null,
+        priority: 'MEDIUM',
+        requirementId: null,
+        steps: [],
+      });
+
+      testCaseId = testCase.id;
+      // So the same name later in the report lands on this case, not a second copy.
+      idByTitle.set(result.name, testCaseId);
+      created.push(result.name);
     }
+
+    matched.push({ testCaseId, result });
   }
 
   const alreadyInRun = new Set(
@@ -288,5 +316,5 @@ export async function importTestResults(
     });
   }
 
-  return { recorded: matched.length, addedToRun: new Set(toAdd).size, unmatched };
+  return { recorded: matched.length, addedToRun: new Set(toAdd).size, created };
 }

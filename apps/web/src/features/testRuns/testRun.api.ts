@@ -118,10 +118,14 @@ export function setTestRunCompleted(
 export type ImportSummary = {
   recorded: number;
   addedToRun: number;
-  unmatched: string[];
+  /** Test cases that did not exist before and were created from the report. */
+  created: string[];
 };
 
-/** Sends a JUnit XML report as text; the API matches it to test cases by title. */
+/**
+ * Sends a JUnit XML report as text. The API matches each test to a test case by
+ * title and creates one for any name it has not seen before.
+ */
 export async function importTestResults(
   projectId: string,
   testRunId: string,

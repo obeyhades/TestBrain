@@ -63,20 +63,20 @@ describe('the import form on the test run page', () => {
     expect(form?.querySelector('input[name="intent"]')).toHaveValue('import');
   });
 
-  it('says what the import did, including names that matched nothing', async () => {
+  it('says what the import did, including the test cases it created', async () => {
     renderPage(() => ({
-      imported: { recorded: 3, addedToRun: 1, unmatched: ['Mystery test'] },
+      imported: { recorded: 3, addedToRun: 1, created: ['Mystery test'] },
     }));
 
     await submitImportForm();
 
     expect(await screen.findByRole('status')).toHaveTextContent(
-      'Recorded 3 results, adding 1 to the run. No test case is called: Mystery test.',
+      'Recorded 3 results, adding 1 to the run. Created 1 new test case: Mystery test.',
     );
   });
 
-  it('uses the singular for one result and stays quiet about an empty unmatched list', async () => {
-    renderPage(() => ({ imported: { recorded: 1, addedToRun: 0, unmatched: [] } }));
+  it('uses the singular for one result and stays quiet when nothing was created', async () => {
+    renderPage(() => ({ imported: { recorded: 1, addedToRun: 0, created: [] } }));
 
     await submitImportForm();
 

@@ -223,7 +223,7 @@ export function TestRunDetailPage() {
         <h3 className="text-sm font-semibold">Import results</h3>
         <p className="mt-1 text-sm text-ink-muted">
           A JUnit XML report from Playwright, Jest, pytest or similar. Each test is matched to a
-          test case by its exact title.
+          test case by its title, and a test case is created for any name that is new.
         </p>
 
         <input type="hidden" name="intent" value="import" />
@@ -239,9 +239,11 @@ export function TestRunDetailPage() {
               ? `, adding ${actionResult.imported.addedToRun} to the run`
               : ''}
             .
-            {actionResult.imported.unmatched.length === 0
+            {actionResult.imported.created.length === 0
               ? ''
-              : ` No test case is called: ${actionResult.imported.unmatched.join(', ')}.`}
+              : ` Created ${actionResult.imported.created.length} new test case${
+                  actionResult.imported.created.length === 1 ? '' : 's'
+                }: ${actionResult.imported.created.join(', ')}.`}
           </p>
         )}
 

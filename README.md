@@ -48,8 +48,8 @@ what could actually be checked.
 
 **Automated results.** A test run can also be filled in from a JUnit XML report,
 the format Playwright, Jest, pytest and most other runners write. Each test is
-matched to a test case by its exact title; names that match nothing are reported
-back rather than dropped. Results imported this way look exactly like results a
+matched to a test case by its title, and a test case is created for any name that is new — so a project's
+catalogue can be built from the report itself instead of typed in first. Results imported this way look exactly like results a
 person recorded, so the summary and the release decision treat them the same.
 
 **Defects.** A failed test carries a "Report defect" link that brings the test case

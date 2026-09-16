@@ -61,7 +61,7 @@ describe('importTestResults', () => {
       report: REPORT,
     });
 
-    expect(summary).toEqual({ recorded: 3, addedToRun: 3, unmatched: [] });
+    expect(summary).toEqual({ recorded: 3, addedToRun: 3, created: [] });
 
     const detail = await getTestRun(prisma, owner, project.id, run.id);
     const byTitle = new Map(detail.results.map((result) => [result.title, result]));
@@ -88,18 +88,61 @@ describe('importTestResults', () => {
     expect(detail.summary).toMatchObject({ passed: 1, failed: 1, blocked: 1, passRate: 50 });
   });
 
-  it('reports names that match no test case instead of dropping them', async () => {
+  it('creates a test case for a name it has never seen, and records its result', async () => {
     const { owner, project, run } = await setUp();
 
     const summary = await importTestResults(prisma, owner, project.id, run.id, {
       report: `<testsuite>
         <testcase name="Login"/>
-        <testcase name="A test nobody wrote a case for"/>
+        <testcase name="A test nobody wrote a case for"><failure message="it broke"/></testcase>
       </testsuite>`,
     });
 
+    expect(summary).toEqual({
+      recorded: 2,
+      addedToRun: 2,
+      created: ['A test nobody wrote a case for'],
+    });
+
+    const createdCase = await prisma.testCase.findFirst({
+      where: { projectId: project.id, title: 'A test nobody wrote a case for' },
+    });
+    expect(createdCase?.createdById).toBe(owner.id);
+
+    const detail = await getTestRun(prisma, owner, project.id, run.id);
+    expect(
+      detail.results.find((result) => result.title === 'A test nobody wrote a case for'),
+    ).toMatchObject({ status: 'FAILED', notes: 'it broke' });
+  });
+
+  it('creates a repeated new name only once, and the last result for it wins', async () => {
+    const { owner, project, run } = await setUp();
+
+    const summary = await importTestResults(prisma, owner, project.id, run.id, {
+      report: `<testsuites>
+        <testsuite name="chromium"><testcase name="Brand new"/></testsuite>
+        <testsuite name="firefox"><testcase name="Brand new"><failure message="only here"/></testcase></testsuite>
+      </testsuites>`,
+    });
+
+    expect(summary.created).toEqual(['Brand new']);
+    expect(
+      await prisma.testCase.count({ where: { projectId: project.id, title: 'Brand new' } }),
+    ).toBe(1);
+
+    const detail = await getTestRun(prisma, owner, project.id, run.id);
+    expect(detail.results.find((result) => result.title === 'Brand new')?.status).toBe('FAILED');
+  });
+
+  it('ignores a test case with no name rather than creating a nameless one', async () => {
+    const { owner, project, run } = await setUp();
+
+    const summary = await importTestResults(prisma, owner, project.id, run.id, {
+      report: '<testsuite><testcase name="Login"/><testcase/></testsuite>',
+    });
+
     expect(summary.recorded).toBe(1);
-    expect(summary.unmatched).toEqual(['A test nobody wrote a case for']);
+    expect(await prisma.testCase.count({ where: { projectId: project.id, title: '' } })).toBe(0);
   });
 
   it('does not add a case that is already in the run twice', async () => {
