@@ -76,7 +76,7 @@ test('a failed test becomes a defect, and the defect holds back the release', as
 
     await page.getByRole('button', { name: 'Failed' }).click();
 
-    await expect(page.getByLabel('0 passed, 1 failed, 0 blocked, 0 not run')).toBeVisible();
+    await expect(page.getByText('Failed:').locator('xpath=following-sibling::dd')).toHaveText('1');
   });
 
   await test.step('report a defect from the failed test', async () => {

@@ -10,15 +10,15 @@ const SEGMENTS = [
 /**
  * Shows how a run is going. The numbers come from the API, which computes them
  * with calculateTestRunSummary: nothing is counted here.
+ *
+ * The coloured bar is decorative. The list underneath says the same numbers as
+ * text, so it is hidden from screen readers to avoid announcing every count twice.
+ * That matters on the test runs list, where the whole card is one link.
  */
 export function TestRunSummaryBar({ summary }: { summary: TestRunSummary }) {
   return (
     <div>
-      <div
-        className="flex h-2 overflow-hidden rounded-full bg-border"
-        role="img"
-        aria-label={`${summary.passed} passed, ${summary.failed} failed, ${summary.blocked} blocked, ${summary.notRun} not run`}
-      >
+      <div className="flex h-2 overflow-hidden rounded-full bg-border" aria-hidden="true">
         {SEGMENTS.map((segment) => {
           const count = summary[segment.key];
 

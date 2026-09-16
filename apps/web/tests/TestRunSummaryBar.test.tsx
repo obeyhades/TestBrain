@@ -14,14 +14,16 @@ describe('TestRunSummaryBar', () => {
     expect(screen.getByText('Pass rate:').nextSibling).toHaveTextContent('75%');
   });
 
-  it('describes the bar for people who cannot see it', () => {
-    render(
+  it('hides the coloured bar from screen readers, since the counts below say the same', () => {
+    const { container } = render(
       <TestRunSummaryBar
         summary={{ total: 5, passed: 3, failed: 1, blocked: 1, notRun: 0, passRate: 75 }}
       />,
     );
 
-    expect(screen.getByLabelText('3 passed, 1 failed, 1 blocked, 0 not run')).toBeInTheDocument();
+    expect(container.querySelector('[aria-hidden="true"]')).not.toBeNull();
+    expect(screen.queryByRole('img')).not.toBeInTheDocument();
+    expect(screen.getByText('Failed:').nextSibling).toHaveTextContent('1');
   });
 
   it('rounds the pass rate rather than printing a long decimal', () => {

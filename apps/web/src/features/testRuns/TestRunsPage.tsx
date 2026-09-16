@@ -50,21 +50,26 @@ export function TestRunsPage() {
       ) : (
         <ul className="mt-4 space-y-3">
           {testRuns.map((testRun) => (
-            <li key={testRun.id} className="rounded-lg border border-border bg-surface p-4">
-              <div className="flex items-center justify-between">
-                <Link to={testRun.id} className="text-sm font-medium hover:underline">
-                  {testRun.name}
-                </Link>
+            <li key={testRun.id}>
+              {/* The whole card is the link. When only the name was clickable, the status
+                  badge on the right was mistaken for an "Open" button that did nothing. */}
+              <Link
+                to={testRun.id}
+                className="block rounded-lg border border-border bg-surface p-4 hover:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm font-medium">{testRun.name}</span>
 
-                <StatusBadge
-                  label={testRun.status === 'COMPLETED' ? 'Completed' : 'Open'}
-                  tone={testRun.status === 'COMPLETED' ? 'done' : 'progress'}
-                />
-              </div>
+                  <StatusBadge
+                    label={testRun.status === 'COMPLETED' ? 'Completed' : 'In progress'}
+                    tone={testRun.status === 'COMPLETED' ? 'done' : 'progress'}
+                  />
+                </div>
 
-              <div className="mt-3">
-                <TestRunSummaryBar summary={testRun.summary} />
-              </div>
+                <div className="mt-3">
+                  <TestRunSummaryBar summary={testRun.summary} />
+                </div>
+              </Link>
             </li>
           ))}
         </ul>

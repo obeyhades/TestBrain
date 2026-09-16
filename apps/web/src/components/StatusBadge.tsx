@@ -13,7 +13,7 @@ const TONE_CLASSES = {
 export function StatusBadge({ label, tone }: StatusBadgeProps) {
   return (
     <span
-      className={`inline-flex h-5 items-center rounded border px-1.5 text-xs font-medium ${TONE_CLASSES[tone]}`}
+      className={`inline-flex h-5 shrink-0 items-center rounded border px-1.5 text-xs font-medium ${TONE_CLASSES[tone]}`}
     >
       {label}
     </span>
