@@ -99,6 +99,40 @@ npm run dev          # in one terminal
 npm run screenshots  # in another
 ```
 
+## Using It
+
+Seven steps, written for somebody who has never opened the app. Sign up at
+**http://localhost:3000** first: the account that signs up on an empty instance becomes
+the administrator.
+
+1. **Create a project.** One project per thing you test, such as a website, a mobile app
+   or a service. Everything else lives inside it.
+2. **Write the requirements.** One sentence each, such as "A customer can sign in with an
+   email address". This step is optional, but it is what later shows which parts of the
+   product nobody has written a test for.
+3. **Write the test cases.** One per check you intend to make, with ordered steps: what
+   you do, and what should happen. Link each one to the requirement it verifies.
+4. **Open a test run.** Name the round, for example "Before the 1.4 release", tick the
+   test cases it covers and press **Add to run**. Then work down the list, marking each
+   row **Passed**, **Failed** or **Blocked**. The summary and the pass rate move as you
+   go.
+5. **Or import a report instead of clicking.** If a test runner has already done the
+   work, press **Import results** and upload its JUnit XML file. Each test is matched to
+   a test case by its title, and a test case is created for every title that is new.
+6. **Report what broke.** A failed row carries a **Report defect** link that brings the
+   test case and the run with it, so the defect arrives already attached to the evidence
+   for it.
+7. **Decide whether to ship.** Create a release, tick the test runs that cover it, and
+   the page answers **Ready to release** or **Not ready to release**, listing whatever is
+   holding it back.
+
+Two things the screen does not say out loud:
+
+- A run stays **In progress** until somebody presses **Mark complete**. Clicking anywhere
+  on a run in the list opens it.
+- Other people see nothing at all until they are added under **Members**, where each one
+  gets a role: Administrator, Project manager, QA or Developer.
+
 ## Architecture
 
 A modular monolith: one frontend, one backend, one PostgreSQL database.
@@ -199,7 +233,8 @@ docker compose up -d
 ```
 
 Open **http://localhost:3000**. The first account to sign up becomes the instance administrator. Anyone can sign
-up after that; the administrator can also create accounts for people directly.
+up after that; the administrator can also create accounts for people directly. [Using It](#using-it)
+walks through a first project, step by step.
 
 Migrations run when the API container starts, so there is nothing else to remember.
 
